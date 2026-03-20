@@ -17,9 +17,22 @@ const CheckoutPage = () => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
+      const orderId = `PED-${Date.now().toString().slice(-6)}`;
+      const orderData = {
+        id: orderId,
+        date: new Date().toISOString(),
+        items: items.map((it) => ({
+          id: it.product.id,
+          name: it.product.name,
+          quantity: it.quantity,
+          price: it.product.price,
+        })),
+        totalPrice,
+        totalPixPrice,
+      };
+
       clearCart();
-      toast.success("Pedido realizado com sucesso!");
-      navigate("/");
+      navigate("/pedido-concluido", { state: orderData });
       setLoading(false);
     }, 1500);
   };

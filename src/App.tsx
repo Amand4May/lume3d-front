@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import PedidoConcluido from "./pages/PedidoConcluido";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/produto/:id" element={<ProductDetail />} />
                 <Route path="/carrinho" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/pedido-concluido" element={<PedidoConcluido />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/cadastro" element={<SignupPage />} />
                 <Route path="/perfil" element={<ProfilePage />} />

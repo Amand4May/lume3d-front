@@ -25,7 +25,12 @@ export function HeroSection() {
             <Button asChild size="lg">
               <Link to="/#produtos">Ver Produtos</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-navy-foreground/30 text-navy-foreground hover:bg-navy-foreground/10">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border border-navy/20 dark:border-navy-foreground/30 text-navy dark:text-navy-foreground hover:bg-navy/10 dark:hover:bg-navy/20 hover:text-navy-foreground transition-all duration-150 transform hover:-translate-y-0.5"
+            >
               <Link to="/#lancamentos">Lançamentos</Link>
             </Button>
           </div>
