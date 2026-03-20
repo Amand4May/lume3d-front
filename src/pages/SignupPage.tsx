@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { toast } from "sonner";
 
 const SignupPage = () => {
@@ -40,7 +41,7 @@ const SignupPage = () => {
             </div>
             <div>
               <label className="text-sm font-medium text-foreground">Senha</label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
             <Button type="submit" className="w-full">Criar Conta</Button>
           </form>
