@@ -23,13 +23,9 @@ const ProductDetail = () => {
   const product = products.find((p) => p.id === id);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [width, setWidth] = useState<number>(0);
-  const [height, setHeight] = useState<number>(0);
-  const [depth, setDepth] = useState<number>(0);
-
-  const volumeCm3 = width > 0 && height > 0 && depth > 0 ? (width * height * depth) / 1000 : 0;
+  const [filament, setFilament] = useState<string>("");
+  const [observations, setObservations] = useState<string>("");
   const pricePerCm3 = product?.specs && product.specs["Preço por cm³"] ? parseFloat(product.specs["Preço por cm³"].replace(",", ".")) : 0;
-  const estimatedPrice = volumeCm3 * pricePerCm3;
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
   const { addItem } = useCart();
   const { toggleFavorite, isFavorited } = useFavorites();
@@ -49,6 +45,37 @@ const ProductDetail = () => {
     } catch {
       toast("Não foi possível copiar o link.");
     }
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!product) return;
+    if (!filament) {
+      toast("Por favor selecione o tipo de filamento antes de enviar via WhatsApp.");
+      return;
+    }
+    // Brazil country code +55, area code 15
+    const phone = "5515996289226";
+    const fileName = file ? file.name : "(sem arquivo)";
+    const obs = observations.trim() || "(sem observações)";
+    const message = `Olá, gostaria de solicitar uma impressão 3D personalizada.%0AProduto: ${product.name}%0AFilamento: ${filament}%0AObservações: ${obs}%0AArquivo: ${fileName}`;
+    const url = `https://wa.me/${phone}?text=${message}`;
+    window.open(url, "_blank");
+  };
+
+  const handleRemoveFile = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setFile(null);
+    toast.success("Arquivo removido.");
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (product.id === "impressao-3d-personalizada") {
+      toast("Serviço sob consulta — envie o arquivo e solicite orçamento nesta página.");
+      return;
+    }
+    addItem(product);
+    toast.success(`${product.name} adicionado ao carrinho!`);
   };
 
   if (!product) {
@@ -71,7 +98,7 @@ const ProductDetail = () => {
           <ArrowLeft className="w-4 h-4" /> Voltar à loja
         </Link>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Image gallery */}
           <div className="bg-surface border border-border rounded-md overflow-hidden">
             <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
@@ -92,7 +119,7 @@ const ProductDetail = () => {
 
                 <div className="bg-surface border border-border rounded-md p-6 mb-6">
                   <h3 className="font-semibold mb-2">Impressão 3D Personalizada</h3>
-                  <p className="text-sm text-muted-foreground mb-3">Envie o arquivo e informe as dimensões (mm). O preço abaixo é estimado automaticamente.</p>
+                  <p className="text-sm text-muted-foreground mb-3">Envie o arquivo e escolha o tipo de filamento. Use o campo de observações para solicitações especiais.</p>
                   <div className="space-y-3">
                     <div>
                       <label className="text-sm block mb-1">Arquivo do modelo</label>
@@ -127,21 +154,41 @@ const ProductDetail = () => {
                       </button>
                       <p className="text-xs text-muted-foreground mt-2">Aceita: .stl, .obj, .zip — Máx 50MB</p>
                       {file && (
-                        <div className="text-sm text-muted-foreground mt-1">
-                          {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        <div className="flex items-center gap-3 mt-2">
+                          <div className="text-sm text-muted-foreground">
+                            {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={handleRemoveFile}>Remover arquivo</Button>
                         </div>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                      <input type="number" min="0" placeholder="Largura (mm)" value={width || ''} onChange={(e) => setWidth(Number(e.target.value))} className="w-full bg-background border border-border rounded-md px-3 py-2" />
-                      <input type="number" min="0" placeholder="Altura (mm)" value={height || ''} onChange={(e) => setHeight(Number(e.target.value))} className="w-full bg-background border border-border rounded-md px-3 py-2" />
-                      <input type="number" min="0" placeholder="Profundidade (mm)" value={depth || ''} onChange={(e) => setDepth(Number(e.target.value))} className="w-full bg-background border border-border rounded-md px-3 py-2" />
-                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm block mb-1">Tipo de filamento</label>
+                        <select value={filament} onChange={(e) => setFilament(e.target.value)} className="w-full bg-background border border-border rounded-md px-3 py-2">
+                          <option value="">Não selecionado</option>
+                          <option value="PLA">PLA</option>
+                          <option value="ABS">ABS</option>
+                          <option value="PETG">PETG</option>
+                          <option value="TPU">TPU</option>
+                        </select>
+                      </div>
 
-                    <div>
-                      <p className="text-sm">Volume estimado: {volumeCm3 ? `${volumeCm3.toFixed(2)} cm³` : '—'}</p>
-                      <p className="text-lg font-bold">Preço estimado: {estimatedPrice ? `R$ ${estimatedPrice.toFixed(2).replace('.', ',')}` : 'A calcular'}</p>
+                      <div>
+                        <label className="text-sm block mb-1">Observações</label>
+                        <textarea value={observations} onChange={(e) => setObservations(e.target.value)} placeholder="Informe acabamento, escala, tolerâncias ou outras solicitações" className="w-full bg-background border border-border rounded-md px-3 py-2" rows={4} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleSendWhatsApp}
+                        variant="outline"
+                        disabled={!filament}
+                        className={`${!filament ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        Enviar via WhatsApp
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -180,7 +227,7 @@ const ProductDetail = () => {
               </div>
             )}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" className="" onClick={() => { addItem(product); toast.success(`${product.name} adicionado ao carrinho!`); }}>
+              <Button size="lg" className="" onClick={handleAddToCart}>
                 Adicionar ao Carrinho
               </Button>
 
@@ -200,7 +247,7 @@ const ProductDetail = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onSelect={() => { addItem(product); toast.success(`${product.name} adicionado ao carrinho!`); }}>Adicionar ao carrinho</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => { handleAddToCart(); }}>Adicionar ao carrinho</DropdownMenuItem>
                     <DropdownMenuItem onSelect={handleToggleFavorite}>{isFavorited(product.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={handleShare}>Compartilhar link</DropdownMenuItem>
