@@ -325,51 +325,7 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {product.id !== "impressao-3d-personalizada" && (
-              <div className="mt-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Truck className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Consulte o frete</span>
-                </div>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const digits = (cep || "").replace(/\D/g, "");
-                    if (digits.length !== 8) {
-                      toast("Por favor insira um CEP válido (8 dígitos).");
-                      setShippingOptions(null);
-                    } else {
-                      const last = parseInt(digits[digits.length - 1], 10) || 0;
-                      const baseNum = 9.9 + (last % 5);
-                      const fastNum = baseNum + 5.0; // faster option costs more
-                      const scheduledNum = Math.max(0, baseNum - 2.0); // cheaper scheduled option
-                      const fmt = (n: number) => n.toFixed(2).replace(".", ",");
-                      setShippingOptions({ base: fmt(baseNum), fast: fmt(fastNum), scheduled: fmt(scheduledNum) });
-                    }
-                  }}
-                  className="mt-2 flex gap-2 items-center"
-                >
-                  <input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="CEP (apenas números)" className="w-full sm:w-64 bg-background border border-border rounded-md px-3 py-2 text-sm" />
-                  <Button type="submit" size="sm" disabled={cep.replace(/\D/g, "").length !== 8}>
-                    Consultar
-                  </Button>
-                </form>
-
-                {shippingOptions && (
-                  <div className="mt-3 space-y-2">
-                    <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
-                      <Truck className="w-4 h-4" />
-                      <span className="text-sm">Mais rápido — entrega em 1-2 dias: <strong>R$ {shippingOptions.fast}</strong></span>
-                    </div>
-                    <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
-                      <Truck className="w-4 h-4" />
-                      <span className="text-sm">Agendado — entrega em 5-7 dias: <strong>R$ {shippingOptions.scheduled}</strong></span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Shipping consult removed from product detail view */}
           </div>
         </div>
 
