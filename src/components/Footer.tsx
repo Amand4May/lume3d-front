@@ -1,4 +1,5 @@
 import { Mail, Phone, MapPin } from "lucide-react";
+import logo from "@/assets/logolume3d.png";
 
 export function Footer() {
   return (
@@ -6,14 +7,13 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-sm">L</span>
+            <div className="flex items-center gap-3">
+              <div className="w-24 h-24 sm:w-20 sm:h-20 md:w-28 md:h-28 flex items-center justify-center overflow-hidden">
+                <img src={logo} alt="Lume 3D" className="w-full h-full object-contain" />
               </div>
-              <span className="font-display font-bold text-lg">Lume 3D</span>
             </div>
             <p className="text-sm text-navy-foreground/60 max-w-xs">
-              Loja especializada em filamentos PLA, PETG, acessórios e impressão 3D profissional. Qualidade e confiança.
+              Loja especializada em filamentos PLA, PETG e impressão 3D profissional. Qualidade e confiança.
             </p>
           </div>
           <div>
