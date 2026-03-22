@@ -25,6 +25,15 @@ const Index = () => {
     if (sortBy === "price-asc") result.sort((a, b) => a.price - b.price);
     if (sortBy === "price-desc") result.sort((a, b) => b.price - a.price);
 
+    // Relevância: colocar produtos de 'Impressão 3D' no topo
+    if (sortBy === "default") {
+      result.sort((a, b) => {
+        const aIsPrint = a.category === "Impressão 3D" ? 1 : 0;
+        const bIsPrint = b.category === "Impressão 3D" ? 1 : 0;
+        return bIsPrint - aIsPrint; // print items first
+      });
+    }
+
     return result;
   }, [category, searchQuery, priceRange, sortBy]);
 

@@ -5,11 +5,14 @@ import productPlaWhite from "@/assets/product-pla-white.jpg";
 import productPetgBlack from "@/assets/product-petg-black.jpg";
 import productPlaGreen from "@/assets/product-pla-green.jpg";
 import productPetgOrange from "@/assets/product-petg-orange.jpg";
+import productHero3d from "@/assets/hero-3dprint.jpg";
+import impresso3d from "@/assets/impresso3d.png";
+import impresso3dazul from "@/assets/impresso3dazul.webp";
 
 export interface Product {
   id: string;
   name: string;
-  category: "PLA" | "PETG";
+  category: string;
   price: number;
   pixPrice: number;
   image: string;
@@ -25,8 +28,8 @@ export const products: Product[] = [
     id: "pla-blue",
     name: "Filamento PLA Azul 1.75mm 1kg",
     category: "PLA",
-    price: 89.90,
-    pixPrice: 79.90,
+    price: 80.99,
+    pixPrice: 75.99,
     image: productPlaBlue,
     images: [productPlaBlue],
     tag: "Promoção",
@@ -118,5 +121,44 @@ export const products: Product[] = [
     reviews: [
       { author: "Pedro F.", rating: 5, text: "Qualidade excepcional, cor vibrante." },
     ],
+  },
+  // Produtos para Impressão 3D Personalizada (variantes por tipo de filamento)
+  {
+    id: "impressao-3d-pla",
+    name: "Impressão 3D Personalizada - PLA",
+    category: "Impressão 3D",
+    price: 0.0,
+    pixPrice: 0.0,
+    image: impresso3d,
+    images: [impresso3d],
+    tag: "Lançamento",
+    description: "Serviço de impressão 3D personalizada. Envie o arquivo do modelo (STL/OBJ/ZIP), informe as dimensões desejas e escolha o tipo de filamento. O preço é calculado com base no volume (cm³) e no tipo de filamento.",
+    specs: {
+      "Diâmetro": "1.75mm",
+      "Dimensões padrão": "Pequena: até 50 cm³ | Média: até 200 cm³ | Grande: até 500 cm³",
+      // Preço por cm³ base (ajuste posteriormente)
+      "Preço por cm³": "1.50",
+      "Observação": "Preço final será confirmado após análise técnica do arquivo.",
+    },
+    reviews: [],
+  },
+  {
+    id: "impressao-3d-petg",
+    name: "Impressão 3D Personalizada - PETG",
+    category: "Impressão 3D",
+    price: 0.0,
+    pixPrice: 0.0,
+    image: impresso3dazul,
+    images: [impresso3dazul],
+    tag: "Lançamento",
+    description: "Serviço de impressão 3D personalizada em PETG. Envie o arquivo do modelo (STL/OBJ/ZIP), informe as dimensões e escolha o acabamento. O preço é calculado com base no volume (cm³) e no tipo de filamento.",
+    specs: {
+      "Diâmetro": "1.75mm",
+      "Dimensões padrão": "Pequena: até 50 cm³ | Média: até 200 cm³ | Grande: até 500 cm³",
+      // Preço por cm³ base (ajuste posteriormente)
+      "Preço por cm³": "2.50",
+      "Observação": "Preço final será confirmado após análise técnica do arquivo.",
+    },
+    reviews: [],
   },
 ];

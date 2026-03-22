@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import logo from "@/assets/logolume3d.png";
+import logoLight from "@/assets/logopretalume3d.png";
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -20,10 +22,11 @@ export function Header() {
       <header className="sticky top-0 z-50 bg-surface border-b border-border">
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-sm flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-sm">L</span>
+            <div className="flex items-center gap-3">
+                <div className="w-20 h-20 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center overflow-hidden">
+                <img src={theme === "light" ? logoLight : logo} alt="Lume 3D" className="w-full h-full object-contain" />
+              </div>
             </div>
-            <span className="font-display font-bold text-lg text-foreground">Lume 3D</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
