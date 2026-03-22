@@ -121,22 +121,7 @@ export function ProductCard({ product }: ProductCardProps) {
               )}
             </>
           )}
-          {/* Shipping consult (not available for custom printing) */}
-          {product.id !== "impressao-3d-personalizada" && (
-            <div className="mt-2">
-              <button type="button" onClick={() => setShippingVisible((s) => !s)} className="text-sm text-muted-foreground underline">
-                Consulte o frete
-              </button>
-              {shippingVisible && (
-                <form onSubmit={(e) => { e.preventDefault(); handleCheckShipping(); }} className="mt-2 flex gap-2">
-                  <input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="CEP (somente números)" className="w-32 bg-background border border-border rounded-md px-2 py-1 text-sm" />
-                  <button type="submit" disabled={cep.replace(/\D/g, "").length !== 8} className={`px-3 py-1 rounded-md text-sm ${cep.replace(/\D/g, "").length === 8 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}>
-                    Consultar
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
+          {/* Shipping consult removed from product list view */}
         </div>
         <div className="mt-3 flex gap-2">
           <span className="flex-1 text-center py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md transition-colors group-hover:bg-primary/90">
