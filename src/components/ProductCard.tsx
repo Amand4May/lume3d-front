@@ -17,6 +17,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.id === "impressao-3d-personalizada") {
+      toast("Serviço sob consulta — acesse a página do produto para enviar o arquivo e solicitar orçamento.");
+      return;
+    }
+
     addItem(product);
     toast.success(`${product.name} adicionado ao carrinho!`);
   };
@@ -53,18 +58,18 @@ export function ProductCard({ product }: ProductCardProps) {
           ) : (
             <>
               <p className="text-lg font-bold text-white">Valor sob consulta</p>
-              {product.specs && product.specs["Preço por cm³"] ? (
+              {product.specs && product.specs["Preço por grama"] ? (
                 (() => {
-                  const raw = product.specs["Preço por cm³"].toString();
+                  const raw = product.specs["Preço por grama"].toString();
                   const num = parseFloat(raw.replace(",", "."));
                   return Number.isFinite(num) ? (
-                    <p className="text-sm text-success font-medium">Preço por cm³: R$ {num.toFixed(2).replace(".", ",")}</p>
+                    <p className="text-sm text-success font-medium">Preço por grama: R$ {num.toFixed(2).replace(".", ",")}</p>
                   ) : (
-                    <p className="text-sm text-success font-medium">Preço por cm³</p>
+                    <p className="text-sm text-success font-medium">Preço por grama</p>
                   );
                 })()
               ) : (
-                <p className="text-sm text-success font-medium">Preço por cm³</p>
+                <p className="text-sm text-success font-medium">Preço por grama</p>
               )}
             </>
           )}
