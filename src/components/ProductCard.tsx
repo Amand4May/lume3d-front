@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import type { Product } from "@/data/products";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -33,6 +34,20 @@ export function ProductCard({ product }: ProductCardProps) {
     toggleFavorite(product);
     if (!currently) toast.success(`${product.name} adicionado aos favoritos!`);
     else toast(`${product.name} removido dos favoritos.`);
+  };
+
+  // Shipping lookup (simple CEP input + mock calculation)
+  const [cep, setCep] = useState("");
+  const [shippingVisible, setShippingVisible] = useState(false);
+  const handleCheckShipping = () => {
+    const digits = (cep || "").replace(/\D/g, "");
+    if (digits.length !== 8) {
+      toast("Por favor insira um CEP válido (8 dígitos).");
+      return;
+    }
+    const last = parseInt(digits[digits.length - 1], 10) || 0;
+    const cost = (9.9 + (last % 5)).toFixed(2);
+    toast.success(`Frete estimado: R$ ${cost.replace(".", ",")}`);
   };
 
   return (
@@ -105,6 +120,22 @@ export function ProductCard({ product }: ProductCardProps) {
                 <p className="text-sm text-success font-medium">Preço por grama</p>
               )}
             </>
+          )}
+          {/* Shipping consult (not available for custom printing) */}
+          {product.id !== "impressao-3d-personalizada" && (
+            <div className="mt-2">
+              <button type="button" onClick={() => setShippingVisible((s) => !s)} className="text-sm text-muted-foreground underline">
+                Consulte o frete
+              </button>
+              {shippingVisible && (
+                <form onSubmit={(e) => { e.preventDefault(); handleCheckShipping(); }} className="mt-2 flex gap-2">
+                  <input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="CEP (somente números)" className="w-32 bg-background border border-border rounded-md px-2 py-1 text-sm" />
+                  <button type="submit" disabled={cep.replace(/\D/g, "").length !== 8} className={`px-3 py-1 rounded-md text-sm ${cep.replace(/\D/g, "").length === 8 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}>
+                    Consultar
+                  </button>
+                </form>
+              )}
+            </div>
           )}
         </div>
         <div className="mt-3 flex gap-2">

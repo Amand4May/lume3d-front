@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { products, type Product } from "@/data/products";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Star, ArrowLeft, Heart, UploadCloud } from "lucide-react";
+import { Star, ArrowLeft, Heart, UploadCloud, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,6 +25,8 @@ const ProductDetail = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [filament, setFilament] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
+  const [cep, setCep] = useState("");
+  const [shippingOptions, setShippingOptions] = useState<{ base: string; fast: string; scheduled: string } | null>(null);
   const pricePerCm3 = product?.specs && product.specs["Preço por cm³"] ? parseFloat(product.specs["Preço por cm³"].replace(",", ".")) : 0;
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
   const { addItem } = useCart();
@@ -236,7 +238,8 @@ const ProductDetail = () => {
             )}
 
             {!product.id.startsWith("impressao-3d") && (
-              <div className="bg-surface border border-border rounded-md p-6 mb-6">
+              <>
+                <div className="bg-surface border border-border rounded-md p-6 mb-6">
                 {product.price > 0 ? (
                   (() => {
                     const normalize = (s: string) =>
@@ -289,6 +292,8 @@ const ProductDetail = () => {
                   </>
                 )}
               </div>
+              {/* shipping consult removed — will render below Add to Cart using site Button */}
+              </>
             )}
             <div className="flex flex-col sm:flex-row gap-3">
               <Button size="lg" className="" onClick={handleAddToCart}>
@@ -319,6 +324,52 @@ const ProductDetail = () => {
                 </DropdownMenu>
               </div>
             </div>
+
+            {product.id !== "impressao-3d-personalizada" && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Truck className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Consulte o frete</span>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const digits = (cep || "").replace(/\D/g, "");
+                    if (digits.length !== 8) {
+                      toast("Por favor insira um CEP válido (8 dígitos).");
+                      setShippingOptions(null);
+                    } else {
+                      const last = parseInt(digits[digits.length - 1], 10) || 0;
+                      const baseNum = 9.9 + (last % 5);
+                      const fastNum = baseNum + 5.0; // faster option costs more
+                      const scheduledNum = Math.max(0, baseNum - 2.0); // cheaper scheduled option
+                      const fmt = (n: number) => n.toFixed(2).replace(".", ",");
+                      setShippingOptions({ base: fmt(baseNum), fast: fmt(fastNum), scheduled: fmt(scheduledNum) });
+                    }
+                  }}
+                  className="mt-2 flex gap-2 items-center"
+                >
+                  <input value={cep} onChange={(e) => setCep(e.target.value)} placeholder="CEP (apenas números)" className="w-full sm:w-64 bg-background border border-border rounded-md px-3 py-2 text-sm" />
+                  <Button type="submit" size="sm" disabled={cep.replace(/\D/g, "").length !== 8}>
+                    Consultar
+                  </Button>
+                </form>
+
+                {shippingOptions && (
+                  <div className="mt-3 space-y-2">
+                    <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
+                      <Truck className="w-4 h-4" />
+                      <span className="text-sm">Mais rápido — entrega em 1-2 dias: <strong>R$ {shippingOptions.fast}</strong></span>
+                    </div>
+                    <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-md px-3 py-2">
+                      <Truck className="w-4 h-4" />
+                      <span className="text-sm">Agendado — entrega em 5-7 dias: <strong>R$ {shippingOptions.scheduled}</strong></span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
