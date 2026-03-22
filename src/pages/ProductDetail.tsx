@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useRef } from "react";
-import { products } from "@/data/products";
+import { products, type Product } from "@/data/products";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Star, ArrowLeft, Heart, UploadCloud } from "lucide-react";
@@ -49,8 +49,8 @@ const ProductDetail = () => {
 
   const handleSendWhatsApp = () => {
     if (!product) return;
-    if (!filament) {
-      toast("Por favor selecione o tipo de filamento antes de enviar via WhatsApp.");
+    if (!filament || !file) {
+      toast("Por favor selecione o tipo de filamento e envie o arquivo antes de enviar via WhatsApp.");
       return;
     }
     // Brazil country code +55, area code 15
@@ -78,6 +78,31 @@ const ProductDetail = () => {
     toast.success(`${product.name} adicionado ao carrinho!`);
   };
 
+  // Small inline component to toggle between two images (cycles back on second click)
+  const ImageToggle = ({ product }: { product: Product }) => {
+    const imgs = product.images && product.images.length > 0 ? product.images : [product.image];
+    const limit = product.id.startsWith("impressao-3d") ? imgs.length : Math.min(2, imgs.length);
+    const [index, setIndex] = useState(0);
+    const toggle = () => setIndex((i) => (i + 1) % (limit || 1));
+
+    return (
+      <div className="relative">
+        <img src={imgs[index]} alt={product.name} className="w-full aspect-square object-cover" />
+        {limit > 1 && (
+          <div className="absolute inset-y-0 right-3 flex items-center">
+            <button
+              onClick={toggle}
+              aria-label="Alternar imagem"
+              className="pointer-events-auto bg-black/50 text-white rounded-full p-3 hover:bg-black/60"
+            >
+              {index === 0 ? "›" : "‹"}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -100,17 +125,27 @@ const ProductDetail = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Image gallery */}
-          <div className="bg-surface border border-border rounded-md overflow-hidden">
-            <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
+          <div className="bg-surface border border-border rounded-md overflow-hidden relative">
+            {/* image toggle */}
+            <ImageToggle product={product} />
           </div>
 
           {/* Info */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{product.category}</span>
-              {product.tag && (
-                <Badge className="bg-accent text-accent-foreground text-xs">{product.tag}</Badge>
-              )}
+              {product.tag && (() => {
+                const normalize = (s: string) =>
+                  s
+                    .normalize("NFD")
+                    .replace(/\p{Diacritic}/gu, "")
+                    .toLowerCase();
+                const tagNorm = normalize(product.tag);
+                const isPromo = tagNorm === "promocao";
+                const isLanc = tagNorm === "lancamento";
+                const badgeClass = `text-xs ${isPromo ? "bg-[#fb542b] text-white" : isLanc ? "bg-[#13bc16] text-white" : "bg-accent text-accent-foreground"}`;
+                return <Badge className={badgeClass}>{product.tag}</Badge>;
+              })()}
             </div>
             {product.id.startsWith("impressao-3d") ? (
               <>
@@ -184,8 +219,8 @@ const ProductDetail = () => {
                       <Button
                         onClick={handleSendWhatsApp}
                         variant="outline"
-                        disabled={!filament}
-                        className={`${!filament ? "opacity-50 cursor-not-allowed" : ""}`}
+                        disabled={!filament || !file}
+                        className={`${!filament || !file ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         Enviar via WhatsApp
                       </Button>
@@ -203,20 +238,49 @@ const ProductDetail = () => {
             {!product.id.startsWith("impressao-3d") && (
               <div className="bg-surface border border-border rounded-md p-6 mb-6">
                 {product.price > 0 ? (
-                  <>
-                    <p className="text-3xl font-bold text-foreground">
-                      R$ {product.price.toFixed(2).replace(".", ",")}
-                    </p>
-                    <p className="text-lg text-success font-semibold mt-1">
-                      R$ {product.pixPrice.toFixed(2).replace(".", ",")} <span className="text-sm font-normal">no PIX</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ou 12x de R$ {(product.price / 12).toFixed(2).replace(".", ",")} sem juros
-                    </p>
-                  </>
+                  (() => {
+                    const normalize = (s: string) =>
+                      s
+                        .normalize("NFD")
+                        .replace(/\p{Diacritic}/gu, "")
+                        .toLowerCase();
+                    const isPromo = product.tag ? normalize(product.tag) === "promocao" || normalize(product.tag) === "promoção" : false;
+                    if (isPromo) {
+                      const discounted = Number((product.price * 0.95).toFixed(2));
+                      const discountedPix = Number((product.pixPrice * 0.95).toFixed(2));
+                      return (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground line-through">R$ {product.price.toFixed(2).replace(".", ",")}</span>
+                            <p className="text-3xl font-bold text-foreground leading-none">R$ {discounted.toFixed(2).replace(".", ",")}</p>
+                            <span className="text-sm text-success font-medium ml-2">-5%</span>
+                          </div>
+                          <p className="text-lg text-success font-semibold mt-1">
+                            R$ {discountedPix.toFixed(2).replace(".", ",")} <span className="text-sm font-normal">no PIX</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            ou 12x de R$ {(discounted / 12).toFixed(2).replace(".", ",")} sem juros
+                          </p>
+                        </>
+                      );
+                    }
+                    return (
+                      <>
+                        <p className="text-3xl font-bold text-foreground">
+                          R$ {product.price.toFixed(2).replace(".", ",")}
+                        </p>
+                        <p className="text-lg text-success font-semibold mt-1">
+                          R$ {product.pixPrice.toFixed(2).replace(".", ",")} <span className="text-sm font-normal">no PIX</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          ou 12x de R$ {(product.price / 12).toFixed(2).replace(".", ",")} sem juros
+                        </p>
+                      </>
+                    );
+                  })()
                 ) : (
                   <>
-                    <p className="text-3xl font-bold text-white">Valor sob consulta</p>
+                          <p className="text-3xl font-bold text-foreground">Valor sob consulta</p>
                     {pricePerCm3 > 0 ? (
                       <p className="text-lg text-success font-semibold mt-1">Preço por cm³: R$ {pricePerCm3.toFixed(2).replace(".", ",")}</p>
                     ) : (

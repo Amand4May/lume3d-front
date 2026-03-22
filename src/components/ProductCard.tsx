@@ -42,22 +42,55 @@ export function ProductCard({ product }: ProductCardProps) {
     >
       <div className="relative aspect-square bg-muted overflow-hidden">
         <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-150 group-hover:scale-105" loading="lazy" />
-        {product.tag && (
-          <Badge className="absolute top-2 left-2 bg-accent text-accent-foreground text-xs font-semibold">{product.tag}</Badge>
-        )}
+        {product.tag && (() => {
+          const normalize = (s: string) =>
+            s
+              .normalize("NFD")
+              .replace(/\p{Diacritic}/gu, "")
+              .toLowerCase();
+          const tagNorm = normalize(product.tag);
+          const isPromo = tagNorm === "promocao";
+          const isLanc = tagNorm === "lancamento";
+          const badgeClass = `absolute top-2 left-2 text-xs font-semibold ${isPromo ? "bg-[#fb542b] text-white" : isLanc ? "bg-[#13bc16] text-white" : "bg-accent text-accent-foreground"}`;
+          return <Badge className={badgeClass}>{product.tag}</Badge>;
+        })()}
       </div>
       <div className="p-4">
         <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{product.category}</span>
         <h3 className="text-sm font-medium text-foreground mt-1 line-clamp-2 leading-snug">{product.name}</h3>
         <div className="mt-3">
           {product.price > 0 ? (
-            <>
-              <p className="text-lg font-bold text-foreground">R$ {product.price.toFixed(2).replace(".", ",")}</p>
-              <p className="text-sm text-success font-medium">R$ {product.pixPrice.toFixed(2).replace(".", ",")} no PIX</p>
-            </>
+            (() => {
+              const normalize = (s: string) =>
+                s
+                  .normalize("NFD")
+                  .replace(/\p{Diacritic}/gu, "")
+                  .toLowerCase();
+              const isPromo = product.tag ? normalize(product.tag) === "promocao" || normalize(product.tag) === "promoção" : false;
+              if (isPromo) {
+                const discounted = Number((product.price * 0.95).toFixed(2));
+                const discountedPix = Number((product.pixPrice * 0.95).toFixed(2));
+                return (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground line-through">R$ {product.price.toFixed(2).replace(".", ",")}</span>
+                      <p className="text-lg font-bold text-foreground leading-none">R$ {discounted.toFixed(2).replace(".", ",")}</p>
+                      <span className="text-sm text-success font-medium ml-2">-5%</span>
+                    </div>
+                    <p className="text-sm text-success font-medium">R$ {discountedPix.toFixed(2).replace(".", ",")} no PIX</p>
+                  </>
+                );
+              }
+              return (
+                <>
+                  <p className="text-lg font-bold text-foreground">R$ {product.price.toFixed(2).replace(".", ",")}</p>
+                  <p className="text-sm text-success font-medium">R$ {product.pixPrice.toFixed(2).replace(".", ",")} no PIX</p>
+                </>
+              );
+            })()
           ) : (
             <>
-              <p className="text-lg font-bold text-white">Valor sob consulta</p>
+              <p className="text-lg font-bold text-foreground">Valor sob consulta</p>
               {product.specs && product.specs["Preço por grama"] ? (
                 (() => {
                   const raw = product.specs["Preço por grama"].toString();
