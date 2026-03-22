@@ -1,8 +1,26 @@
 import heroImage from "@/assets/hero-3dprint.jpg";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useCallback } from "react";
 
 export function HeroSection() {
+  const scrollToProducts = useCallback((category?: string) => {
+    if (category) {
+      // set hash with category param (keeps SPA behavior)
+      window.location.hash = `#produtos?category=${encodeURIComponent(category)}`;
+    } else {
+      window.location.hash = "#produtos";
+    }
+
+    // dispatch a custom event so parent page can reliably update filters
+    window.dispatchEvent(new CustomEvent("scrollToProducts", { detail: { category: category ?? null } }));
+
+    const el = document.getElementById("produtos");
+    if (el) {
+      // small timeout to allow hash change to be applied
+      setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-navy">
       <div className="absolute inset-0">
@@ -19,19 +37,19 @@ export function HeroSection() {
             Impressões 3D personalizadas
           </h1>
           <p className="text-lg text-navy-foreground/80 mb-8 font-body">
-            Filamentos de alta qualidade para suas criações. PLA, PETG e muito mais com entrega rápida em todo o Brasil.
+            Modelos prontos, personalizados e de alta qualidade para suas criações.
           </p>
           <div className="flex gap-3">
-            <Button asChild size="lg">
-              <Link to="/#produtos">Ver Produtos</Link>
+            <Button size="lg" onClick={() => scrollToProducts()}>
+              Ver Produtos
             </Button>
             <Button
-              asChild
               variant="outline"
               size="lg"
               className="border border-navy/20 dark:border-navy-foreground/30 text-navy dark:text-navy-foreground hover:bg-navy/10 dark:hover:bg-navy/20 hover:text-navy-foreground transition-all duration-150 transform hover:-translate-y-0.5"
+              onClick={() => scrollToProducts("Lançamentos")}
             >
-              <Link to="/#lancamentos">Lançamentos</Link>
+              Lançamentos
             </Button>
           </div>
         </div>

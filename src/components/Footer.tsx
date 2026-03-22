@@ -13,7 +13,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-navy-foreground/60 max-w-xs">
-              Loja especializada em filamentos PLA, PETG e impressão 3D profissional. Qualidade e confiança.
+              Loja especializada em impressão 3D profissional. Qualidade e confiança.
             </p>
           </div>
           <div>
