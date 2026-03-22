@@ -4,6 +4,10 @@ import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { User, Mail, LogOut } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import Favorites from "@/components/account/Favorites";
+import Orders from "@/components/account/Orders";
+import AccountSettings from "@/components/account/AccountSettings";
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
@@ -28,28 +32,53 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="container py-8 flex-1 max-w-lg">
+      <div className="container py-8 flex-1 max-w-4xl">
         <h1 className="text-2xl font-bold text-foreground mb-8">Meu Perfil</h1>
-        <div className="bg-surface border border-border rounded-md p-6 space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-primary" />
+
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="bg-surface border border-border rounded-md p-6 md:col-span-2">
+            <div className="flex items-center gap-4">
+              <div className="w-28 h-28 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                <User className="w-12 h-12 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-bold text-foreground text-lg">{user.name}</h2>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Mail className="w-3.5 h-3.5" /> {user.email}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-bold text-foreground text-lg">{user.name}</h2>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5" /> {user.email}
-              </p>
-            </div>
+            <hr className="border-border my-4" />
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => { logout(); navigate("/"); }}
+            >
+              <LogOut className="w-4 h-4 mr-2" /> Sair da Conta
+            </Button>
           </div>
-          <hr className="border-border" />
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => { logout(); navigate("/"); }}
-          >
-            <LogOut className="w-4 h-4 mr-2" /> Sair da Conta
-          </Button>
+
+          <div className="md:col-span-3">
+            <Tabs defaultValue="favoritos">
+              <TabsList>
+                <TabsTrigger value="favoritos">Favoritos</TabsTrigger>
+                <TabsTrigger value="compras">Compras</TabsTrigger>
+                <TabsTrigger value="dadosseg">Dados & Segurança</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="favoritos">
+                <Favorites />
+              </TabsContent>
+
+              <TabsContent value="compras">
+                <Orders />
+              </TabsContent>
+
+              <TabsContent value="dadosseg">
+                <AccountSettings />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
       <Footer />

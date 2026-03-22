@@ -11,7 +11,7 @@ interface CategorySidebarProps {
   onSortChange: (sort: string) => void;
 }
 
-const categories = ["PLA", "PETG"];
+const categories = ["PLA", "PETG", "Impressão 3D"];
 
 export function CategorySidebar({
   selectedCategory,
