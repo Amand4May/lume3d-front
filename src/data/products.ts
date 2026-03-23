@@ -135,7 +135,7 @@ export const products: Product[] = [
     price: 0.0,
     pixPrice: 0.0,
     image: impresso3dazul,
-    images: [impresso3d],
+    images: [impresso3dazul],
     tag: "Lançamento",
     description:
       "Serviço de impressão 3D personalizada. Envie o arquivo do modelo (STL/OBJ/ZIP) e escolha o tipo de filamento: PLA, ABS, PETG ou TPU. Há um campo de 'Observações' para informar acabamento, escala, tolerâncias ou solicitações especiais. O upload do arquivo é mantido. O preço final será confirmado após análise técnica do arquivo e das opções escolhidas.",
