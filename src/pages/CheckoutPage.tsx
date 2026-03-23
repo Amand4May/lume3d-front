@@ -28,6 +28,8 @@ const CheckoutPage = () => {
 
   const frete = selectedOption?.price ?? 0;
   const total = totalPrice + frete;
+  const pixRatio = totalPrice > 0 ? totalPixPrice / totalPrice : 0.9;
+  const totalPixWithShipping = (totalPrice + frete) * pixRatio;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +54,7 @@ const CheckoutPage = () => {
           price: it.product.price,
         })),
         totalPrice,
-        totalPixPrice,
+        totalPixPrice: totalPixWithShipping,
         shippingOption: { name: selectedOption.name, price: selectedOption.price },
         totalWithShipping: total,
       };
@@ -175,8 +177,8 @@ const CheckoutPage = () => {
               <span>R$ {total.toFixed(2).replace(".", ",")}</span>
             </div>
             <div className="flex justify-between text-sm text-success font-semibold mt-1">
-              <span>No PIX (produtos)</span>
-              <span>R$ {totalPixPrice.toFixed(2).replace(".", ",")}</span>
+              <span>No PIX</span>
+              <span>R$ {totalPixWithShipping.toFixed(2).replace(".", ",")}</span>
             </div>
           </div>
         </div>
