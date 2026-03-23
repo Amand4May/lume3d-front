@@ -20,6 +20,8 @@ export default function PedidoConcluido() {
         items: OrderItem[];
         totalPrice: number;
         totalPixPrice: number;
+        shippingOption?: { name: string; price: number } | null;
+        totalWithShipping?: number;
       }
     | undefined;
 
@@ -55,13 +57,27 @@ export default function PedidoConcluido() {
               </div>
 
               <hr className="my-4 border-border" />
+              <div className="space-y-2 text-sm mb-4">
+                <div className="flex justify-between text-foreground">
+                  <span>Subtotal</span>
+                  <span>R$ {order.totalPrice.toFixed(2).replace('.', ',')}</span>
+                </div>
+                {order.shippingOption && (
+                  <div className="flex justify-between text-foreground">
+                    <span>Frete ({order.shippingOption.name})</span>
+                    <span>R$ {order.shippingOption.price.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                )}
+              </div>
               <div className="flex justify-between items-center">
                 <div>
                   <div className="text-sm text-muted-foreground">Total</div>
-                  <div className="font-bold text-foreground">R$ {order.totalPrice.toFixed(2).replace('.', ',')}</div>
+                  <div className="font-bold text-foreground">
+                    R$ {(order.totalWithShipping ?? order.totalPrice).toFixed(2).replace('.', ',')}
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-muted-foreground">No PIX</div>
+                  <div className="text-sm text-muted-foreground">No PIX (produtos)</div>
                   <div className="font-semibold text-success">R$ {order.totalPixPrice.toFixed(2).replace('.', ',')}</div>
                 </div>
               </div>
