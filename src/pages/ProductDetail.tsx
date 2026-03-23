@@ -291,14 +291,10 @@ const ProductDetail = () => {
                   </>
                 )}
               </div>
-              <div className="mt-4">
-                <p className="text-sm font-medium text-foreground mb-2">Calcular frete</p>
-                <ShippingCalculator />
-              </div>
               </>
             )}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" className="" onClick={handleAddToCart}>
+            <div className="flex flex-col gap-3 mt-2">
+              <Button size="lg" className="w-full" onClick={handleAddToCart}>
                 Adicionar ao Carrinho
               </Button>
 
@@ -327,7 +323,10 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Shipping consult removed from product detail view */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <p className="text-sm font-medium text-foreground mb-3">Calcular frete</p>
+              <ShippingCalculator />
+            </div>
           </div>
         </div>
 
