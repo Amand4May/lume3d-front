@@ -8,6 +8,8 @@ import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 const CartPage = () => {
   const { items, removeItem, updateQuantity, clearCart, totalPrice, totalPixPrice } = useCart();
 
+  const MAX_QUANTITY = 10; // 🔹 limite máximo
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -46,18 +48,39 @@ const CartPage = () => {
                   <button onClick={() => removeItem(item.product.id)} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="w-4 h-4" />
                   </button>
+
                   <div className="flex items-center gap-2 border border-border rounded-md">
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1 hover:bg-muted rounded-l-md">
+                    {/* Botão diminuir */}
+                    <button
+                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                      className="p-1 hover:bg-muted rounded-l-md"
+                    >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="text-sm font-medium w-6 text-center text-foreground">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1 hover:bg-muted rounded-r-md">
+
+                    <span className="text-sm font-medium w-6 text-center text-foreground">
+                      {item.quantity}
+                    </span>
+
+                    {/* Botão aumentar com limite */}
+                    <button
+                      disabled={item.quantity >= MAX_QUANTITY}
+                      onClick={() => {
+                        if (item.quantity >= MAX_QUANTITY) {
+                          alert("Limite máximo de 10 unidades por produto.");
+                          return;
+                        }
+                        updateQuantity(item.product.id, item.quantity + 1);
+                      }}
+                      className="p-1 hover:bg-muted rounded-r-md disabled:opacity-50"
+                    >
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
               </div>
             ))}
+
             <button onClick={clearCart} className="text-sm text-muted-foreground hover:text-destructive">
               Limpar carrinho
             </button>
