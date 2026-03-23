@@ -321,10 +321,12 @@ const ProductDetail = () => {
               </DropdownMenu>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-border">
-              <p className="text-sm font-medium text-foreground mb-3">Calcular frete</p>
-              <ShippingCalculator />
-            </div>
+            {!product.id.startsWith("impressao-3d") && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <p className="text-sm font-medium text-foreground mb-3">Calcular frete</p>
+                <ShippingCalculator />
+              </div>
+            )}
           </div>
         </div>
 
