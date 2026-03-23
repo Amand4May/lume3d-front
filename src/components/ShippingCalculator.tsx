@@ -102,9 +102,6 @@ export default function ShippingCalculator() {
           {isLoading ? 'Calculando...' : 'Calcular frete'}
         </Button>
       </div>
-      {isLoading && (
-        <p className="text-sm text-muted-foreground">Buscando endereço...</p>
-      )}
       {error && (
         <p className="text-sm text-destructive">{error}</p>
       )}

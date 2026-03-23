@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import React from 'react'
 import { ShippingContext, MOCK_SHIPPING_OPTIONS } from '@/contexts/ShippingContext'
 import type { ShippingOption } from '@/contexts/ShippingContext'
@@ -63,7 +63,9 @@ describe('ShippingCalculator', () => {
       fireEvent.click(screen.getByRole('button', { name: /calcular frete/i }))
 
       expect(screen.getByRole('button', { name: /calculando/i })).toBeDisabled()
-      resolveCalc()
+
+      // Resolve and flush so the component can finish its async work cleanly
+      await act(async () => { resolveCalc() })
     })
   })
 
