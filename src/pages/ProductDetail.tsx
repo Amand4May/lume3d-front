@@ -3,7 +3,8 @@ import { useState, useRef } from "react";
 import { products, type Product } from "@/data/products";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Star, ArrowLeft, Heart, UploadCloud, Truck } from "lucide-react";
+import { Star, ArrowLeft, Heart, UploadCloud } from "lucide-react";
+import ShippingCalculator from "@/components/ShippingCalculator";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,8 +26,6 @@ const ProductDetail = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [filament, setFilament] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
-  const [cep, setCep] = useState("");
-  const [shippingOptions, setShippingOptions] = useState<{ base: string; fast: string; scheduled: string } | null>(null);
   const pricePerCm3 = product?.specs && product.specs["Preço por cm³"] ? parseFloat(product.specs["Preço por cm³"].replace(",", ".")) : 0;
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
   const { addItem } = useCart();
@@ -292,7 +291,10 @@ const ProductDetail = () => {
                   </>
                 )}
               </div>
-              {/* shipping consult removed — will render below Add to Cart using site Button */}
+              <div className="mt-4">
+                <p className="text-sm font-medium text-foreground mb-2">Calcular frete</p>
+                <ShippingCalculator />
+              </div>
               </>
             )}
             <div className="flex flex-col sm:flex-row gap-3">
