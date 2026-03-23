@@ -293,34 +293,32 @@ const ProductDetail = () => {
               </div>
               </>
             )}
-            <div className="flex flex-col gap-3 mt-2">
-              <Button size="lg" className="w-full" onClick={handleAddToCart}>
+            <div className="flex items-center gap-2 mt-2">
+              <Button size="lg" className="flex-1" onClick={handleAddToCart}>
                 Adicionar ao Carrinho
               </Button>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`inline-flex items-center justify-center w-12 h-12 rounded-md transition-colors ${isFavorited(product.id) ? "bg-destructive text-destructive-foreground" : "bg-surface border"}`}
-                  aria-label={isFavorited(product.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                >
-                  <Heart className="w-5 h-5" />
-                </button>
+              <button
+                onClick={handleToggleFavorite}
+                className={`inline-flex items-center justify-center w-12 h-12 rounded-md transition-colors shrink-0 ${isFavorited(product.id) ? "bg-destructive text-destructive-foreground" : "bg-surface border"}`}
+                aria-label={isFavorited(product.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+              >
+                <Heart className="w-5 h-5" />
+              </button>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="w-12 h-12 p-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 100-4 2 2 0 000 4zM14 10a2 2 0 100-4 2 2 0 000 4zM10 14a2 2 0 100-4 2 2 0 000 4z" /></svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onSelect={() => { handleAddToCart(); }}>Adicionar ao carrinho</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={handleToggleFavorite}>{isFavorited(product.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={handleShare}>Compartilhar link</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-12 h-12 p-0 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 100-4 2 2 0 000 4zM14 10a2 2 0 100-4 2 2 0 000 4zM10 14a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => { handleAddToCart(); }}>Adicionar ao carrinho</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={handleToggleFavorite}>{isFavorited(product.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={handleShare}>Compartilhar link</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="mt-6 pt-6 border-t border-border">
