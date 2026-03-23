@@ -26,7 +26,7 @@ export const MOCK_SHIPPING_OPTIONS: ShippingOption[] = [
   { id: 'sedex10', name: 'SEDEX 10', days: '1 dia útil',      price: 52.00 },
 ]
 
-const STORAGE_KEY = 'lume3d_shipping'
+export const STORAGE_KEY = 'lume3d_shipping'
 const EMPTY_STATE: ShippingState = { cep: '', address: null, selectedOption: null }
 
 function loadFromStorage(): ShippingState {
@@ -69,16 +69,21 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   }
 
   const calculateShipping = async (rawCep: string): Promise<void> => {
-    const result = await cep(rawCep) // throws on failure — caller handles error UI
+    const normalizedCep = rawCep.replace(/\D/g, '').trim()
+    const result = await cep(normalizedCep) // throws on failure — caller handles error UI
     updateState({
-      cep: rawCep,
+      cep: normalizedCep,
       address: { city: result.city, state: result.state },
       selectedOption: null,
     })
   }
 
   const setSelectedOption = (option: ShippingOption) => {
-    updateState({ ...state, selectedOption: option })
+    setState(prev => {
+      const next = { ...prev, selectedOption: option }
+      saveToStorage(next)
+      return next
+    })
   }
 
   const resetShipping = () => {

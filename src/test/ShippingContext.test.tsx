@@ -11,6 +11,7 @@ import {
   ShippingProvider,
   useShipping,
   MOCK_SHIPPING_OPTIONS,
+  STORAGE_KEY,
 } from '@/contexts/ShippingContext'
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -36,7 +37,7 @@ describe('ShippingContext', () => {
       address: { city: 'São Paulo', state: 'SP' },
       selectedOption: MOCK_SHIPPING_OPTIONS[0],
     }
-    localStorage.setItem('lume3d_shipping', JSON.stringify(saved))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
     const { result } = renderHook(() => useShipping(), { wrapper })
     expect(result.current.cep).toBe('01310100')
     expect(result.current.address).toEqual({ city: 'São Paulo', state: 'SP' })
@@ -44,14 +45,14 @@ describe('ShippingContext', () => {
   })
 
   it('resets to empty state on invalid JSON in localStorage', () => {
-    localStorage.setItem('lume3d_shipping', 'not-valid-json')
+    localStorage.setItem(STORAGE_KEY, 'not-valid-json')
     const { result } = renderHook(() => useShipping(), { wrapper })
     expect(result.current.address).toBeNull()
     expect(result.current.cep).toBe('')
   })
 
   it('resets to empty state when cep field is missing', () => {
-    localStorage.setItem('lume3d_shipping', JSON.stringify({ address: null, selectedOption: null }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ address: null, selectedOption: null }))
     const { result } = renderHook(() => useShipping(), { wrapper })
     expect(result.current.cep).toBe('')
     expect(result.current.address).toBeNull()
@@ -63,7 +64,7 @@ describe('ShippingContext', () => {
       address: { city: 'São Paulo', state: 'SP' },
       selectedOption: { id: 'obsolete-carrier', name: 'Old', days: '5 dias', price: 10 },
     }
-    localStorage.setItem('lume3d_shipping', JSON.stringify(saved))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
     const { result } = renderHook(() => useShipping(), { wrapper })
     expect(result.current.selectedOption).toBeNull()
     expect(result.current.address).toBeNull()
@@ -97,7 +98,7 @@ describe('ShippingContext', () => {
     mockCep.mockResolvedValueOnce({ city: 'Rio de Janeiro', state: 'RJ' } as any)
     const { result } = renderHook(() => useShipping(), { wrapper })
     await act(async () => { await result.current.calculateShipping('20040020') })
-    const stored = JSON.parse(localStorage.getItem('lume3d_shipping')!)
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
     expect(stored.cep).toBe('20040020')
     expect(stored.address.city).toBe('Rio de Janeiro')
   })
@@ -106,7 +107,7 @@ describe('ShippingContext', () => {
     const { result } = renderHook(() => useShipping(), { wrapper })
     act(() => { result.current.setSelectedOption(MOCK_SHIPPING_OPTIONS[1]) })
     expect(result.current.selectedOption).toEqual(MOCK_SHIPPING_OPTIONS[1])
-    const stored = JSON.parse(localStorage.getItem('lume3d_shipping')!)
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
     expect(stored.selectedOption.id).toBe('sedex')
   })
 
@@ -121,6 +122,6 @@ describe('ShippingContext', () => {
     expect(result.current.cep).toBe('')
     expect(result.current.address).toBeNull()
     expect(result.current.selectedOption).toBeNull()
-    expect(localStorage.getItem('lume3d_shipping')).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
   })
 })
