@@ -12,7 +12,7 @@ function formatCep(raw: string): string {
 }
 
 export default function ShippingCalculator() {
-  const { cep, address, selectedOption, calculateShipping, setSelectedOption, resetShipping } =
+  const { cep, address, selectedOption, shippingOptions, calculateShipping, setSelectedOption, resetShipping } =
     useShipping()
 
   const [inputCep, setInputCep] = useState(() => (cep ? formatCep(cep) : ''))
@@ -45,37 +45,47 @@ export default function ShippingCalculator() {
     if (error) setError(null)
   }
 
-  // Result state: address has been found
+  // When address present show editable CEP, calculate button and options coming from context
   if (address !== null) {
     return (
       <div className="space-y-4">
         <div className="flex gap-2">
-          <Input value={formatCep(cep)} readOnly className="max-w-[160px]" />
-          <Button type="button" variant="outline" onClick={handleReset}>
-            Recalcular
+          <Input value={inputCep} onChange={handleCepChange} placeholder="00000-000" maxLength={9} className={error ? 'border-destructive max-w-[160px]' : 'max-w-[160px]'} />
+          <Button type="button" onClick={handleCalculate} disabled={!canSubmit}>
+            {isLoading ? 'Calculando...' : 'Calcular frete'}
           </Button>
         </div>
-        <div className="rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-300">
-          📍 Entregando para: <strong>{address.city} - {address.state}</strong>
+        <div className="rounded-md bg-success/10 border border-success/20 px-3 py-2 text-sm text-success dark:bg-success-900 dark:border-success-700 dark:text-success/200 flex items-center gap-2">
+          <span>📍 Entregando para:</span>
+          <strong>{address.city} - {address.state}</strong>
         </div>
         <RadioGroup
           value={selectedOption?.id ?? ''}
           onValueChange={(id) => {
-            const opt = MOCK_SHIPPING_OPTIONS.find(o => o.id === id)
+            const opts = (shippingOptions && shippingOptions.length) ? shippingOptions : MOCK_SHIPPING_OPTIONS
+            const opt = opts.find(o => o.id === id)
             if (opt) setSelectedOption(opt)
           }}
           className="space-y-0"
         >
-          {MOCK_SHIPPING_OPTIONS.map((opt) => (
-            <div key={opt.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
+          {((shippingOptions && shippingOptions.length) ? shippingOptions : MOCK_SHIPPING_OPTIONS).map((opt) => (
+            <div
+              key={opt.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => setSelectedOption(opt)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedOption(opt) }}
+              className={`flex items-center gap-3 py-2 border-b border-border last:border-0 ${selectedOption?.id === opt.id ? 'bg-surface/90 rounded-md' : ''}`}
+            >
               <RadioGroupItem value={opt.id} id={opt.id} />
               <Label htmlFor={opt.id} className="flex-1 cursor-pointer">
                 <span className="font-medium">{opt.name}</span>
                 <span className="text-muted-foreground"> — {opt.days}</span>
               </Label>
-              <span className="font-semibold text-sm">
-                R$ {opt.price.toFixed(2).replace('.', ',')}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm">R$ {opt.price.toFixed(2).replace('.', ',')}</span>
+                {/* keep only color highlight; no extra selected label */}
+              </div>
             </div>
           ))}
         </RadioGroup>

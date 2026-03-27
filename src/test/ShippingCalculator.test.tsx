@@ -112,11 +112,12 @@ describe('ShippingCalculator', () => {
       expect(setSelectedOption).toHaveBeenCalledWith(MOCK_SHIPPING_OPTIONS[0])
     })
 
-    it('"Recalcular" button calls resetShipping', () => {
-      const resetShipping = vi.fn()
-      renderWithContext(makeContext({ ...addressCtx, resetShipping }))
-      fireEvent.click(screen.getByRole('button', { name: /recalcular/i }))
-      expect(resetShipping).toHaveBeenCalled()
+    it('Calculate button is present and can trigger calculateShipping', () => {
+      const calculateShipping = vi.fn().mockResolvedValue(undefined)
+      renderWithContext(makeContext({ ...addressCtx, calculateShipping }))
+      const btn = screen.getByRole('button', { name: /calcular frete/i })
+      fireEvent.click(btn)
+      expect(calculateShipping).toHaveBeenCalled()
     })
   })
 
