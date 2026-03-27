@@ -6,6 +6,14 @@ import { useCart } from "@/contexts/CartContext";
 import { useShipping } from "@/contexts/ShippingContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from '@/components/ui/select'
 import { ArrowLeft } from "lucide-react";
 import ShippingCalculator from "@/components/ShippingCalculator";
 
@@ -18,6 +26,8 @@ const CheckoutPage = () => {
 
   const [cidade, setCidade] = useState(address?.city ?? '');
   const [estado, setEstado] = useState(address?.state ?? '');
+  const [paymentMethod, setPaymentMethod] = useState<"pix"|"credit"|"debit"|"boleto">("pix");
+  const [installments, setInstallments] = useState<number>(1);
 
   useEffect(() => {
     if (address) {
@@ -27,9 +37,9 @@ const CheckoutPage = () => {
   }, [address]);
 
   const frete = selectedOption?.price ?? 0;
-  const total = totalPrice + frete;
-  const pixRatio = totalPrice > 0 ? totalPixPrice / totalPrice : 0.9;
-  const totalPixWithShipping = (totalPrice + frete) * pixRatio;
+  const totalWithShipping = totalPrice + frete;
+  const totalPixWithShipping = Number((totalWithShipping * 0.9).toFixed(2))
+  const payableTotal = paymentMethod === 'pix' ? totalPixWithShipping : totalWithShipping;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +54,8 @@ const CheckoutPage = () => {
 
     setTimeout(() => {
       const orderId = `PED-${Date.now().toString().slice(-6)}`;
+      const finalTotal = paymentMethod === 'pix' ? totalPixWithShipping : totalWithShipping;
+
       const orderData = {
         id: orderId,
         date: new Date().toISOString(),
@@ -51,12 +63,17 @@ const CheckoutPage = () => {
           id: it.product.id,
           name: it.product.name,
           quantity: it.quantity,
-          price: it.product.price,
+          price: it.product.tag === 'Promoção' ? Number((it.product.price * 0.95).toFixed(2)) : it.product.price,
         })),
-        totalPrice,
+        totalPrice: totalWithShipping,
         totalPixPrice: totalPixWithShipping,
+        payableTotal: finalTotal,
         shippingOption: { name: selectedOption.name, price: selectedOption.price },
-        totalWithShipping: total,
+        totalWithShipping: totalWithShipping,
+        payment: {
+          method: paymentMethod,
+          installments: paymentMethod === 'credit' ? installments : 1,
+        },
       };
 
       clearCart();
@@ -141,6 +158,45 @@ const CheckoutPage = () => {
                 />
               </div>
             </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Forma de pagamento</label>
+              <div className="mt-2 space-y-2">
+                <Select value={paymentMethod} onValueChange={(v) => { setPaymentMethod(v as any); if (v !== 'credit') setInstallments(1); }}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pix">PIX (10% desconto)</SelectItem>
+                    <SelectItem value="credit">Cartão de Crédito</SelectItem>
+                    <SelectItem value="debit">Débito</SelectItem>
+                    <SelectItem value="boleto">Boleto</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {paymentMethod === 'credit' && (
+                  <div>
+                    {totalWithShipping > 50 ? (
+                      <>
+                        <label className="text-sm font-medium text-foreground">Parcelas</label>
+                        <Select value={String(installments)} onValueChange={(v) => setInstallments(Number(v))}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 6 }, (_, i) => i + 1).map((n) => (
+                              <SelectItem key={n} value={String(n)}>{n}x</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">R$ {(totalWithShipping / installments).toFixed(2).replace('.', ',')} por parcela</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Parcelamento disponível apenas para pedidos acima de R$ 50,00</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? "Processando..." : "Confirmar Pedido"}
             </Button>
@@ -149,12 +205,18 @@ const CheckoutPage = () => {
           <div className="bg-surface border border-border rounded-md p-6 h-fit">
             <h2 className="font-bold text-foreground mb-4">Resumo</h2>
             <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.product.id} className="flex justify-between text-sm">
-                  <span className="text-foreground">{item.product.name} × {item.quantity}</span>
-                  <span className="text-foreground">R$ {(item.product.price * item.quantity).toFixed(2).replace(".", ",")}</span>
-                </div>
-              ))}
+              {items.map((item) => {
+                const unitPrice = item.product.tag === 'Promoção' ? item.product.price * 0.95 : item.product.price
+                return (
+                  <div key={item.product.id} className="flex justify-between text-sm">
+                    <div>
+                      <span className="text-foreground">{item.product.name} × {item.quantity}</span>
+                      {item.product.tag === 'Promoção' && <Badge className="ml-2" variant="secondary">Promo</Badge>}
+                    </div>
+                    <span className="text-foreground">R$ {(unitPrice * item.quantity).toFixed(2).replace(".", ",")}</span>
+                  </div>
+                )
+              })}
             </div>
             <hr className="my-4 border-border" />
             <div className="space-y-2 text-sm">
@@ -174,7 +236,7 @@ const CheckoutPage = () => {
             <hr className="my-4 border-border" />
             <div className="flex justify-between font-bold text-foreground">
               <span>Total</span>
-              <span>R$ {total.toFixed(2).replace(".", ",")}</span>
+              <span>R$ {totalWithShipping.toFixed(2).replace(".", ",")}</span>
             </div>
             <div className="flex justify-between text-sm text-success font-semibold mt-1">
               <span>No PIX</span>

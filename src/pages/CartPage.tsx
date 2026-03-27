@@ -2,11 +2,15 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
+import { useShipping } from '@/contexts/ShippingContext'
 import { Button } from "@/components/ui/button";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Badge } from '@/components/ui/badge'
+import ShippingCalculator from '@/components/ShippingCalculator'
 
 const CartPage = () => {
   const { items, removeItem, updateQuantity, clearCart, totalPrice, totalPixPrice } = useCart();
+  const { selectedOption } = useShipping()
 
   const MAX_QUANTITY = 10; // 🔹 limite máximo
 
@@ -34,52 +38,64 @@ const CartPage = () => {
         <h1 className="text-2xl font-bold text-foreground mb-8">Carrinho de Compras</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div key={item.product.id} className="flex gap-4 bg-surface border border-border rounded-md p-4">
-                <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded-md" />
-                <div className="flex-1">
-                  <h3 className="font-medium text-foreground text-sm">{item.product.name}</h3>
-                  <p className="text-sm text-muted-foreground">{item.product.category}</p>
-                  <p className="text-sm font-bold text-foreground mt-1">
-                    R$ {(item.product.price * item.quantity).toFixed(2).replace(".", ",")}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end justify-between">
-                  <button onClick={() => removeItem(item.product.id)} className="text-muted-foreground hover:text-destructive">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+            {items.map((item) => {
+              const unitPrice = item.product.tag === 'Promoção' ? item.product.price * 0.95 : item.product.price
+              return (
+                <div key={item.product.id} className="flex gap-4 bg-surface border border-border rounded-md p-4">
+                  <img src={item.product.image} alt={item.product.name} className="w-20 h-20 object-cover rounded-md" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-foreground text-sm">{item.product.name}</h3>
+                        {item.product.tag === 'Promoção' && <Badge variant="secondary">Promo</Badge>}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{item.product.category}</p>
+                      <p className="text-sm font-bold text-foreground mt-1">
+                        {item.product.tag === 'Promoção' ? (
+                          <>
+                            <span className="text-muted-foreground line-through mr-2">R$ {item.product.price.toFixed(2).replace('.', ',')}</span>
+                            <span>R$ {(unitPrice * item.quantity).toFixed(2).replace('.', ',')}</span>
+                          </>
+                        ) : (
+                          <>R$ {(unitPrice * item.quantity).toFixed(2).replace('.', ',')}</>
+                        )}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2 border border-border rounded-md">
-                    {/* Botão diminuir */}
-                    <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="p-1 hover:bg-muted rounded-l-md"
-                    >
-                      <Minus className="w-3 h-3" />
+                  <div className="flex flex-col items-end justify-between">
+                    <button onClick={() => removeItem(item.product.id)} className="text-muted-foreground hover:text-destructive">
+                      <Trash2 className="w-4 h-4" />
                     </button>
 
-                    <span className="text-sm font-medium w-6 text-center text-foreground">
-                      {item.quantity}
-                    </span>
+                    <div className="flex items-center gap-2 border border-border rounded-md">
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                        className="p-1 hover:bg-muted rounded-l-md"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
 
-                    {/* Botão aumentar com limite */}
-                    <button
-                      disabled={item.quantity >= MAX_QUANTITY}
-                      onClick={() => {
-                        if (item.quantity >= MAX_QUANTITY) {
-                          alert("Limite máximo de 10 unidades por produto.");
-                          return;
-                        }
-                        updateQuantity(item.product.id, item.quantity + 1);
-                      }}
-                      className="p-1 hover:bg-muted rounded-r-md disabled:opacity-50"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
+                      <span className="text-sm font-medium w-6 text-center text-foreground">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        disabled={item.quantity >= MAX_QUANTITY}
+                        onClick={() => {
+                          if (item.quantity >= MAX_QUANTITY) {
+                            alert("Limite máximo de 10 unidades por produto.");
+                            return;
+                          }
+                          updateQuantity(item.product.id, item.quantity + 1);
+                        }}
+                        className="p-1 hover:bg-muted rounded-r-md disabled:opacity-50"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             <button onClick={clearCart} className="text-sm text-muted-foreground hover:text-destructive">
               Limpar carrinho
@@ -87,22 +103,54 @@ const CartPage = () => {
           </div>
 
           <div className="bg-surface border border-border rounded-md p-6 h-fit">
+            <div className="mb-4">
+              <p className="text-sm font-medium text-foreground mb-3">Calcular frete</p>
+              <ShippingCalculator />
+              {selectedOption && (
+                <div className="mt-2">
+                  <Badge variant="outline">{selectedOption.name}</Badge>
+                  <span className="ml-2 text-sm text-muted-foreground">{selectedOption.days} • R$ {selectedOption.price.toFixed(2).replace('.', ',')}</span>
+                </div>
+              )}
+            </div>
             <h2 className="font-bold text-foreground mb-4">Resumo do Pedido</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-foreground">
                 <span>Subtotal</span>
                 <span>R$ {totalPrice.toFixed(2).replace(".", ",")}</span>
               </div>
-              <div className="flex justify-between text-success font-semibold">
-                <span>No PIX</span>
-                <span>R$ {totalPixPrice.toFixed(2).replace(".", ",")}</span>
+              <div className="flex justify-between text-foreground">
+                <span>Frete</span>
+                <span>R$ {(selectedOption?.price ?? 0).toFixed(2).replace('.', ',')}</span>
               </div>
             </div>
             <hr className="my-4 border-border" />
-            <div className="flex justify-between font-bold text-foreground mb-4">
-              <span>Total</span>
-              <span>R$ {totalPrice.toFixed(2).replace(".", ",")}</span>
-            </div>
+            {(() => {
+              const shipping = selectedOption?.price ?? 0
+              const totalWithShipping = totalPrice + shipping
+              const totalPixWithShipping = Number((totalWithShipping * 0.9).toFixed(2))
+              const diff = Number((totalWithShipping - totalPixWithShipping).toFixed(2))
+              return (
+                <>
+                  <div className="flex justify-between font-bold text-foreground mb-4">
+                    <span>Total</span>
+                    <span>R$ {totalWithShipping.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Total no PIX <span className="text-xs text-muted-foreground">(10% desconto)</span></span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-lg font-bold text-success">R$ {totalPixWithShipping.toFixed(2).replace('.', ',')}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Diferença (à vista PIX)</span>
+                      <span>R$ {diff.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                  </div>
+                </>
+              )
+            })()}
             <Link to="/checkout">
               <Button className="w-full" size="lg">Finalizar Compra</Button>
             </Link>

@@ -8,10 +8,17 @@ export interface ShippingOption {
   price: number
 }
 
+export const MOCK_SHIPPING_OPTIONS: ShippingOption[] = [
+  { id: 'pac',     name: 'PAC',      days: '7–12 dias úteis', price: 18.9 },
+  { id: 'sedex',   name: 'SEDEX',    days: '1–3 dias úteis',  price: 34.5 },
+  { id: 'sedex10', name: 'SEDEX 10', days: '1 dia útil',      price: 52.0 },
+]
+
 interface ShippingState {
   cep: string
   address: { city: string; state: string } | null
   selectedOption: ShippingOption | null
+  shippingOptions: ShippingOption[]
 }
 
 interface ShippingContextType extends ShippingState {
@@ -20,14 +27,62 @@ interface ShippingContextType extends ShippingState {
   resetShipping: () => void
 }
 
-export const MOCK_SHIPPING_OPTIONS: ShippingOption[] = [
-  { id: 'pac',     name: 'PAC',      days: '7–12 dias úteis', price: 18.90 },
-  { id: 'sedex',   name: 'SEDEX',    days: '1–3 dias úteis',  price: 34.50 },
-  { id: 'sedex10', name: 'SEDEX 10', days: '1 dia útil',      price: 52.00 },
-]
+const ORIGIN = { city: 'Sorocaba', state: 'SP' }
+
+function computeOptionsFor(address: { city: string; state: string }): ShippingOption[] {
+  const state = address.state?.toUpperCase?.() ?? ''
+  const city = address.city ?? ''
+
+  // Base PAC price logic: Sorocaba -> R$8.90, same state SP -> R$12.90, neighbors -> R$29.90, distant -> R$120
+  let pac = 49.9
+  if (state === ORIGIN.state && city.toLowerCase().includes(ORIGIN.city.toLowerCase())) pac = 8.9
+  else if (state === ORIGIN.state) pac = 12.9
+  else if (['MG', 'RJ', 'PR', 'MS', 'GO', 'MT'].includes(state)) pac = 29.9
+  else if (['AM', 'AC', 'RR', 'AP', 'PA', 'RO'].includes(state)) pac = 120
+  else pac = 49.9
+
+  // Ensure cap
+  const cap = 150
+  pac = Math.min(pac, cap)
+
+  const sedex = Math.min(pac * 2, cap)
+  const sedex10 = Math.min(pac * 3, cap)
+
+  // Adjust delivery days based on geographic region. States in Sul, Sudeste e Centro-Oeste have no extra delay.
+  const southeast = ['SP', 'RJ', 'MG', 'ES']
+  const south = ['RS', 'SC', 'PR']
+  const centerWest = ['DF', 'GO', 'MT', 'MS']
+  const northeast = ['BA','SE','AL','PE','PB','RN','CE','PI','MA']
+  const north = ['AM','AC','RR','AP','PA','RO']
+
+  let extra = 0
+  if (southeast.includes(state) || south.includes(state) || centerWest.includes(state)) {
+    extra = 0
+  } else if (northeast.includes(state)) {
+    extra = 5
+  } else if (north.includes(state)) {
+    extra = 10
+  } else {
+    extra = 7
+  }
+
+  // Base delivery windows
+  const pacMin = 7 + extra
+  const pacMax = 12 + extra
+  // sedex increases less proportionally
+  const sedexMin = 1 + Math.ceil(extra / 3)
+  const sedexMax = 3 + Math.ceil(extra / 3)
+  const sedex10Days = 1 + Math.ceil(extra / 6)
+
+  return [
+    { id: 'pac', name: 'PAC', days: `${pacMin}–${pacMax} dias úteis`, price: Number(pac.toFixed(2)) },
+    { id: 'sedex', name: 'SEDEX', days: `${sedexMin}–${sedexMax} dias úteis`, price: Number(sedex.toFixed(2)) },
+    { id: 'sedex10', name: 'SEDEX 10', days: `${sedex10Days} dia${sedex10Days > 1 ? 's' : ''} útil${sedex10Days > 1 ? 's' : ''}`, price: Number(sedex10.toFixed(2)) },
+  ]
+}
 
 export const STORAGE_KEY = 'lume3d_shipping'
-const EMPTY_STATE: ShippingState = { cep: '', address: null, selectedOption: null }
+const EMPTY_STATE: ShippingState = { cep: '', address: null, selectedOption: null, shippingOptions: [] }
 
 function loadFromStorage(): ShippingState {
   try {
@@ -41,13 +96,17 @@ function loadFromStorage(): ShippingState {
       }
     }
     if (parsed.selectedOption !== null && parsed.selectedOption !== undefined) {
-      const valid = MOCK_SHIPPING_OPTIONS.some(o => o.id === parsed.selectedOption?.id)
-      if (!valid) return EMPTY_STATE
+      // validate selectedOption id against stored shippingOptions or the mock list
+      const id = parsed.selectedOption?.id
+      const inStored = Array.isArray(parsed.shippingOptions) && parsed.shippingOptions.some((o: any) => o.id === id)
+      const inMock = MOCK_SHIPPING_OPTIONS.some(o => o.id === id)
+      if (!inStored && !inMock) return EMPTY_STATE
     }
     return {
       cep: parsed.cep,
       address: parsed.address ?? null,
       selectedOption: parsed.selectedOption ?? null,
+      shippingOptions: parsed.shippingOptions ?? [],
     }
   } catch {
     return EMPTY_STATE
@@ -71,10 +130,14 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   const calculateShipping = async (rawCep: string): Promise<void> => {
     const normalizedCep = rawCep.replace(/\D/g, '').trim()
     const result = await cep(normalizedCep) // throws on failure — caller handles error UI
+    const address = { city: result.city, state: result.state }
+    const options = computeOptionsFor(address)
     updateState({
       cep: normalizedCep,
-      address: { city: result.city, state: result.state },
+      address,
+      // keep compatibility: do not auto-select an option — let UI/ user pick
       selectedOption: null,
+      shippingOptions: options,
     })
   }
 

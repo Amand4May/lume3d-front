@@ -47,8 +47,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
-  const totalPrice = items.reduce((s, i) => s + i.product.price * i.quantity, 0);
-  const totalPixPrice = items.reduce((s, i) => s + i.product.pixPrice * i.quantity, 0);
+  const effectivePrice = (product: any) => {
+    if (product?.tag === 'Promoção') return product.price * 0.95 // 5% off for promo-tag items
+    return product.price
+  }
+
+  const totalPrice = items.reduce((s, i) => s + effectivePrice(i.product) * i.quantity, 0);
+  // totalPixPrice here is items-only 10% off; final PIX with shipping is computed in UI
+  const totalPixPrice = totalPrice * 0.9
 
   return (
     <CartContext.Provider
