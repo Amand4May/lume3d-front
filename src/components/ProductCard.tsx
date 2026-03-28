@@ -73,7 +73,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="p-4">
         <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{product.category}</span>
         <h3 className="text-sm font-medium text-foreground mt-1 line-clamp-2 leading-snug">{product.name}</h3>
-        <div className="mt-3">
+        <div className="mt-3 min-h-[56px] flex flex-col justify-end">
           {product.price > 0 ? (
             (() => {
               const normalize = (s: string) =>

@@ -18,7 +18,9 @@ import { ArrowLeft } from "lucide-react";
 import ShippingCalculator from "@/components/ShippingCalculator";
 
 const CheckoutPage = () => {
-  const { items, totalPrice, totalPixPrice, clearCart } = useCart();
+  const { items, totalPrice, totalPixPrice, clearCart, applyCoupon, removeCoupon, discountAmount, coupon } = useCart();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const { selectedOption, address } = useShipping();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -68,6 +70,8 @@ const CheckoutPage = () => {
         totalPrice: totalWithShipping,
         totalPixPrice: totalPixWithShipping,
         payableTotal: finalTotal,
+        coupon: coupon?.code ?? null,
+        discountAmount: discountAmount,
         shippingOption: { name: selectedOption.name, price: selectedOption.price },
         totalWithShipping: totalWithShipping,
         payment: {
@@ -132,6 +136,15 @@ const CheckoutPage = () => {
                   Selecione uma opção de entrega para continuar.
                 </p>
               )}
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Cupom de desconto</label>
+              <div className="mt-2 flex gap-2">
+                <Input placeholder="Código do cupom" value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
+                <Button onClick={() => { const res = applyCoupon(couponCode); setCouponMsg(res.message); }}>{coupon ? 'Atualizar' : 'Aplicar'}</Button>
+                {coupon && <Button variant="ghost" onClick={() => { removeCoupon(); setCouponMsg('Cupom removido'); setCouponCode(''); }}>Remover</Button>}
+              </div>
+              {couponMsg && <p className="text-sm text-red-600 font-medium mt-2">{couponMsg}</p>}
             </div>
 
             <div>
@@ -222,8 +235,14 @@ const CheckoutPage = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-foreground">
                 <span>Subtotal</span>
-                <span>R$ {totalPrice.toFixed(2).replace(".", ",")}</span>
+                <span>R$ {(totalPrice + discountAmount).toFixed(2).replace('.', ',')}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-foreground">
+                  <span>Desconto</span>
+                  <span>- R$ {discountAmount.toFixed(2).replace('.', ',')}</span>
+                </div>
+              )}
               <div className="flex justify-between text-foreground">
                 <span>Frete{selectedOption ? ` (${selectedOption.name})` : ''}</span>
                 {selectedOption ? (
@@ -236,7 +255,7 @@ const CheckoutPage = () => {
             <hr className="my-4 border-border" />
             <div className="flex justify-between font-bold text-foreground">
               <span>Total</span>
-              <span>R$ {totalWithShipping.toFixed(2).replace(".", ",")}</span>
+              <span>R$ {totalWithShipping.toFixed(2).replace('.', ',')}</span>
             </div>
             <div className="flex justify-between text-sm text-success font-semibold mt-1">
               <span>No PIX</span>
