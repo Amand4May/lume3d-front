@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import logo from "@/assets/logolume3d.png";
-import logoLight from "@/assets/logopretalume3d.png";
+import logo from "@/assets/svgbrancolume.svg";
+import logoLight from "@/assets/svgpretolume.svg";
 
 export function Header() {
   const { totalItems } = useCart();
@@ -15,7 +15,7 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-navy text-navy-foreground text-center text-sm py-2 font-body">
+      <div className="dark:bg-navy dark:text-navy-foreground bg-gray-100 text-gray-800 text-center text-sm py-2 font-body">
         🚀  Ganhe frete grátis em compras acima de R$ 199! Use o cupom <span className="font-semibold">PRINT10</span> (Válido até 22/09/2025)
       </div>
 
@@ -28,7 +28,12 @@ export function Header() {
             {/* Esquerda: logo clicável */}
             <Link to="/" className="flex-shrink-0 flex items-center">
               <div className="w-20 h-20 lg:w-24 lg:h-24 flex items-center justify-center overflow-hidden">
-                <img src={theme === "light" ? logoLight : logo} alt="Lume 3D" className="w-full h-full object-contain" />
+                <img
+                  key={theme}
+                  src={(theme === "light" ? logoLight : logo) + `?v=${theme}`}
+                  alt="Lume 3D"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </Link>
 
@@ -83,7 +88,12 @@ export function Header() {
             {/* Centro: logo */}
             <Link to="/" className="flex items-center">
               <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
-                <img src={theme === "light" ? logoLight : logo} alt="Lume 3D" className="w-full h-full object-contain" />
+                <img
+                  key={theme + "-mobile"}
+                  src={(theme === "light" ? logoLight : logo) + `?v=${theme}-mobile`}
+                  alt="Lume 3D"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </Link>
 
