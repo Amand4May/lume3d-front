@@ -46,9 +46,8 @@ export function HeroSection() {
             <Button
               variant="outline"
               size="lg"
-              className="border border-navy/20 dark:border-navy-foreground/30 text-navy dark:text-navy-foreground hover:bg-navy/10 dark:hover:bg-navy/20 hover:text-navy-foreground transition-all duration-150 transform hover:-translate-y-0.5"
-              onClick={() => scrollToProducts("Lançamentos")}
-            >
+              className="!bg-transparent !border-white/30 dark:!border-navy-foreground/30 text-white hover:!text-white hover:!bg-navy/10 transition-transform duration-150 transform hover:-translate-y-0.5"
+              onClick={() => scrollToProducts("Lançamentos")} >
               Lançamentos
             </Button>
           </div>

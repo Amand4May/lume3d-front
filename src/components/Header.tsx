@@ -15,7 +15,7 @@ export function Header() {
 
   return (
     <>
-      <div className="dark:bg-navy dark:text-navy-foreground bg-gray-100 text-gray-800 text-center text-sm py-2 font-body">
+      <div className="dark:bg-navy dark:text-navy-foreground bg-gray-200 text-gray-900 text-center text-sm py-2 font-body">
         🚀  Ganhe frete grátis em compras acima de R$ 199! Use o cupom <span className="font-semibold">PRINT10</span> (Válido até 22/09/2025)
       </div>
 
@@ -26,7 +26,7 @@ export function Header() {
           <div className="container relative py-2 flex items-center justify-between">
 
             {/* Esquerda: logo clicável */}
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex-shrink-0 flex items-center">
               <div className="w-20 h-20 lg:w-24 lg:h-24 flex items-center justify-center overflow-hidden">
                 <img
                   key={theme}
@@ -38,7 +38,7 @@ export function Header() {
             </Link>
 
             {/* Centro ABSOLUTO: busca + atalhos — não empurra nada */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 flex flex-col justify-end items-center pb-3 w-[480px] xl:w-[620px]">
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 flex flex-col justify-end items-center pb-4 w-[480px] xl:w-[620px]">
                 <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -47,7 +47,7 @@ export function Header() {
                     className="w-full pl-10 pr-4 py-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
-                <nav className="w-full flex justify-center gap-5 mt-2 flex-nowrap">
+                <nav className="w-full flex justify-center gap-5 mt-4 flex-nowrap">
                   <a href="#produtos?category=Promo%C3%A7%C3%B5es" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Promoção</a>
                   <a href="#produtos?category=Lançamentos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Lançamento</a>
                   <a href="#produtos?category=Impressao%203d" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Impressão 3D</a>
@@ -86,7 +86,7 @@ export function Header() {
             </button>
 
             {/* Centro: logo */}
-            <Link to="/" className="flex items-center">
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center">
               <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
                 <img
                   key={theme + "-mobile"}

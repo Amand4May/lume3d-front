@@ -15,7 +15,7 @@ export default function ShippingCalculator() {
   const { cep, address, selectedOption, shippingOptions, calculateShipping, setSelectedOption, resetShipping } =
     useShipping()
 
-  const [inputCep, setInputCep] = useState(() => (cep ? formatCep(cep) : ''))
+  const [inputCep, setInputCep] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,11 +50,14 @@ export default function ShippingCalculator() {
     return (
       <div className="space-y-4">
         <div className="flex gap-2">
-          <Input value={inputCep} onChange={handleCepChange} placeholder="00000-000" maxLength={9} className={error ? 'border-destructive max-w-[160px]' : 'max-w-[160px]'} />
+          <Input value={inputCep} onChange={handleCepChange} placeholder="00000-000" maxLength={9} className={error ? 'border border-red-600 max-w-[160px]' : 'max-w-[160px]'} />
           <Button type="button" onClick={handleCalculate} disabled={!canSubmit}>
             {isLoading ? 'Calculando...' : 'Calcular frete'}
           </Button>
         </div>
+        {error && (
+          <p className="text-sm text-red-600 font-medium mt-2">{error}</p>
+        )}
         <div className="rounded-md bg-success/10 border border-success/20 px-3 py-2 text-sm text-success dark:bg-success-900 dark:border-success-700 dark:text-success/200 flex items-center gap-2">
           <span>📍 Entregando para:</span>
           <strong>{address.city} - {address.state}</strong>
@@ -102,7 +105,7 @@ export default function ShippingCalculator() {
           onChange={handleCepChange}
           placeholder="00000-000"
           maxLength={9}
-          className={error ? 'border-destructive max-w-[160px]' : 'max-w-[160px]'}
+          className={error ? 'border border-red-600 max-w-[160px]' : 'max-w-[160px]'}
         />
         <Button
           type="button"
@@ -113,7 +116,7 @@ export default function ShippingCalculator() {
         </Button>
       </div>
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p className="text-sm text-red-600 font-medium mt-2">{error}</p>
       )}
     </div>
   )
