@@ -74,10 +74,12 @@ function computeOptionsFor(address: { city: string; state: string }): ShippingOp
   const sedexMax = 3 + Math.ceil(extra / 3)
   const sedex10Days = 1 + Math.ceil(extra / 6)
 
+  const sedex10Label = sedex10Days === 1 ? `${sedex10Days} dia útil` : `${sedex10Days} dias úteis`
+
   return [
     { id: 'pac', name: 'PAC', days: `${pacMin}–${pacMax} dias úteis`, price: Number(pac.toFixed(2)) },
     { id: 'sedex', name: 'SEDEX', days: `${sedexMin}–${sedexMax} dias úteis`, price: Number(sedex.toFixed(2)) },
-    { id: 'sedex10', name: 'SEDEX 10', days: `${sedex10Days} dia${sedex10Days > 1 ? 's' : ''} útil${sedex10Days > 1 ? 's' : ''}`, price: Number(sedex10.toFixed(2)) },
+    { id: 'sedex10', name: 'SEDEX 10', days: sedex10Label, price: Number(sedex10.toFixed(2)) },
   ]
 }
 
