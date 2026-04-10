@@ -18,10 +18,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import useSEO from "@/hooks/useSEO";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const product = products.find((p) => p.id === id);
+  useSEO({
+    title: product ? `${product.name} — Lume 3D` : undefined,
+    description: product?.description,
+    image: product?.images && product.images.length > 0 ? product.images[0] : product?.image,
+    url: typeof window !== "undefined" ? window.location.href : undefined,
+  });
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [filament, setFilament] = useState<string>("");
