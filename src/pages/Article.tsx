@@ -14,6 +14,7 @@ const Article = () => {
     description: post?.description,
     image: post?.image,
     url: typeof window !== "undefined" ? window.location.href : undefined,
+    type: "article",
   });
 
   if (!post) return <NotFound />;

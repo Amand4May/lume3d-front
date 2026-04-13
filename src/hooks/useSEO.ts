@@ -5,6 +5,8 @@ type SEOOptions = {
   description?: string;
   image?: string;
   url?: string;
+  type?: string;
+  siteName?: string;
 };
 
 function setMetaName(name: string, content?: string) {
@@ -29,18 +31,22 @@ function setMetaProperty(prop: string, content?: string) {
   el.setAttribute("content", content);
 }
 
-export default function useSEO({ title, description, image, url }: SEOOptions) {
+export default function useSEO({ title, description, image, url, type = "website", siteName }: SEOOptions) {
   useEffect(() => {
     if (title) document.title = title;
 
     setMetaName("description", description);
-    setMetaName("twitter:title", title);
+    setMetaName("twitter:title", title ?? document.title);
     setMetaName("twitter:description", description);
+    setMetaName("twitter:card", image ? "summary_large_image" : "summary");
+    setMetaName("twitter:image", image);
 
-    setMetaProperty("og:title", title);
+    setMetaProperty("og:site_name", siteName ?? "Lume 3D");
+    setMetaProperty("og:title", title ?? document.title);
     setMetaProperty("og:description", description);
     setMetaProperty("og:image", image);
-    setMetaProperty("og:type", "website");
+    setMetaProperty("og:image:alt", description);
+    setMetaProperty("og:type", type);
 
     if (url) {
       setMetaProperty("og:url", url);
@@ -52,5 +58,6 @@ export default function useSEO({ title, description, image, url }: SEOOptions) {
       }
       link.setAttribute("href", url);
     }
-  }, [title, description, image, url]);
+  }, [title, description, image, url, type, siteName]);
 }
+
