@@ -18,7 +18,7 @@ Este projeto foi construído utilizando tecnologias modernas de desenvolvimento 
 
 ## 🛠️ Funcionalidades
 
-- [x] **Catálogo de Produtos:** Listagem de filamentos (PLA, ABS, PETG) com filtros.
+- [x] **Catálogo de Produtos:** Listagem de produtos com filtros.
 - [x] **Personalização:** Área para upload/especificações de arquivos para impressão 3D sob demanda.
 - [x] **Carrinho Dinâmico:** Gerenciamento de itens e cálculo de valores em tempo real.
 - [x] **Layout Responsivo:** Experiência otimizada para Desktop e Mobile.
