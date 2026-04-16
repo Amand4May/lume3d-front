@@ -8,12 +8,19 @@ import { BrandsSection } from "@/components/BrandsSection";
 import { Footer } from "@/components/Footer";
 import { products } from "@/data/products";
 import { useEffect } from "react";
+import useSEO from "@/hooks/useSEO";
 
 const Index = () => {
   const [category, setCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
   const [sortBy, setSortBy] = useState("default");
+
+  useSEO({
+    title: "Lume 3D - Filamentos e Impressão 3D",
+    description: "Loja especializada em filamentos PLA, PETG, acessórios e impressão 3D profissional.",
+    url: typeof window !== "undefined" ? window.location.href : undefined,
+  });
 
   const filtered = useMemo(() => {
     const normalize = (s: string) =>

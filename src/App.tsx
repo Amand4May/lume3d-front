@@ -10,6 +10,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
+import BlogIndex from "./pages/BlogIndex";
+import Article from "./pages/Article";
 import ScrollToTop from "@/components/ScrollToTop";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -34,6 +36,8 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <Routes>
+                <Route path="/blog" element={<BlogIndex />} />
+                <Route path="/blog/:slug" element={<Article />} />
                 <Route path="/" element={<Index />} />
                 <Route path="/produto/:id" element={<ProductDetail />} />
                 <Route path="/carrinho" element={<CartPage />} />
