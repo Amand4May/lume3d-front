@@ -69,13 +69,16 @@ const Index = () => {
   // Listen to hash changes so HeroSection can trigger scroll+category via hash
   // Also listen to query params for category navigation from other pages
   useEffect(() => {
-    const applyFilters = () => {
+    let isFirstLoad = true;
+
+    const applyFilters = (shouldScroll = false) => {
       let cat = null;
       
       // First check query params (from navbar navigation)
       const paramCat = searchParams.get("category");
       if (paramCat) {
         cat = decodeURIComponent(paramCat);
+        shouldScroll = true;
       } else {
         // Fall back to hash (from HeroSection)
         const hash = window.location.hash || "";
@@ -86,6 +89,7 @@ const Index = () => {
           const hashCat = params.get("category");
           if (hashCat) {
             cat = decodeURIComponent(hashCat);
+            shouldScroll = true;
           }
         }
       }
@@ -96,17 +100,29 @@ const Index = () => {
       const paramSearch = searchParams.get("search");
       if (paramSearch) {
         setSearchQuery(decodeURIComponent(paramSearch));
+        shouldScroll = true;
       } else {
         setSearchQuery("");
       }
       
-      // Scroll to produtos section
-      const el = document.getElementById("produtos");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      // Only scroll to produtos if there's a filter/search or explicit request (but NOT on first load)
+      if (shouldScroll && !isFirstLoad) {
+        const el = document.getElementById("produtos");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+      
+      isFirstLoad = false;
     };
 
     applyFilters();
-    window.addEventListener("hashchange", applyFilters);
+    
+    const handleHashChange = () => {
+      isFirstLoad = false;
+      applyFilters(true);
+    };
+    
+    window.addEventListener("hashchange", handleHashChange);
+    
     const handleCustom = (e: Event) => {
       // handle custom event from HeroSection
       try {
@@ -119,9 +135,11 @@ const Index = () => {
       const el = document.getElementById("produtos");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     };
+    
     window.addEventListener("scrollToProducts", handleCustom as EventListener);
+    
     return () => {
-      window.removeEventListener("hashchange", applyFilters);
+      window.removeEventListener("hashchange", handleHashChange);
       window.removeEventListener("scrollToProducts", handleCustom as EventListener);
     };
   }, [searchParams]);
