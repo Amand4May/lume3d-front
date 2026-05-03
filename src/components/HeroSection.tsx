@@ -6,18 +6,15 @@ import { useCallback } from "react";
 export function HeroSection() {
   const scrollToProducts = useCallback((category?: string) => {
     if (category) {
-      // set hash with category param (keeps SPA behavior)
       window.location.hash = `#produtos?category=${encodeURIComponent(category)}`;
     } else {
       window.location.hash = "#produtos";
     }
 
-    // dispatch a custom event so parent page can reliably update filters
     window.dispatchEvent(new CustomEvent("scrollToProducts", { detail: { category: category ?? null } }));
 
     const el = document.getElementById("produtos");
     if (el) {
-      // small timeout to allow hash change to be applied
       setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 50);
     }
   }, []);
@@ -36,8 +33,8 @@ export function HeroSection() {
       <div className="relative container py-20 md:py-32">
         <div className="max-w-xl">
           <div className="mb-4">
-              <span className="w-fit inline-block bg-primary/30 px-3 py-1 rounded-full text-xs font-semibold uppercase text-white shadow-sm backdrop-blur-sm border border-white/10 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-white flex-shrink-0" />
+            <span className="w-fit inline-block bg-primary/30 px-3 py-1 rounded-full text-xs font-semibold uppercase text-white shadow-sm backdrop-blur-sm border border-white/10 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-white flex-shrink-0" />
               Inovação em cada camada
             </span>
           </div>
@@ -55,7 +52,8 @@ export function HeroSection() {
               variant="outline"
               size="lg"
               className="!bg-transparent !border-white/30 dark:!border-navy-foreground/30 text-white hover:!text-white hover:!bg-navy/10 transition-transform duration-150 transform hover:-translate-y-0.5"
-              onClick={() => scrollToProducts("Lançamentos")} >
+              onClick={() => scrollToProducts("Lançamentos")}
+            >
               Lançamentos
             </Button>
           </div>

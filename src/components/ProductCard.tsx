@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Product } from "@/data/products";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { ShoppingCart, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const { user } = useAuth();
   const { toggleFavorite, isFavorited } = useFavorites();
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -22,7 +24,12 @@ export function ProductCard({ product }: ProductCardProps) {
       toast("Serviço sob consulta — acesse a página do produto para enviar o arquivo e solicitar orçamento.");
       return;
     }
-
+    if (!user) {
+      toast("Faça login para adicionar produtos ao carrinho.", {
+        action: { label: "Entrar", onClick: () => window.location.href = "/login" },
+      });
+      return;
+    }
     addItem(product);
     toast.success(`${product.name} adicionado ao carrinho!`);
   };
@@ -36,7 +43,6 @@ export function ProductCard({ product }: ProductCardProps) {
     else toast(`${product.name} removido dos favoritos.`);
   };
 
-  // Shipping lookup (simple CEP input + mock calculation)
   const [cep, setCep] = useState("");
   const [shippingVisible, setShippingVisible] = useState(false);
   const handleCheckShipping = () => {
@@ -121,7 +127,6 @@ export function ProductCard({ product }: ProductCardProps) {
               )}
             </>
           )}
-          {/* Shipping consult removed from product list view */}
         </div>
         <div className="mt-3 flex gap-2">
           <span className="flex-1 text-center py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md transition-colors group-hover:bg-primary/90">

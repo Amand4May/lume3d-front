@@ -11,9 +11,11 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // hide header on specific routes (login, signup)
+
+  // Oculta o header nas páginas de login e cadastro (têm layout próprio)
   const hideOn = ["/login", "/cadastro"];
   if (hideOn.includes(location.pathname)) return null;
+
   const { totalItems } = useCart();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -37,11 +39,11 @@ export function Header() {
 
       <header className="sticky top-0 z-50 bg-surface border-b border-border">
 
-        {/* ── DESKTOP (md+) ───────────────────────────────────────── */}
+        {/* ── DESKTOP (md+) ─────────────────────────────────────── */}
         <div className="hidden md:block relative">
           <div className="container relative py-2 flex items-center justify-between">
 
-            {/* Esquerda: logo clicável */}
+            {/* Esquerda: logo */}
             <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex-shrink-0 flex items-center">
               <div className="w-20 h-20 lg:w-24 lg:h-24 flex items-center justify-center overflow-hidden">
                 <img
@@ -53,25 +55,25 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Centro ABSOLUTO: busca + atalhos — não empurra nada */}
+            {/* Centro absoluto: busca + atalhos */}
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 flex flex-col justify-end items-center pb-4 w-[480px] xl:w-[620px]">
-                <div className="relative w-full">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Buscar produtos..."
-                    value={searchInput}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <nav className="w-full flex justify-center gap-5 mt-4 flex-nowrap">
-                  <Link to="/?category=Promo%C3%A7%C3%B5es" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Promoção</Link>
-                  <Link to="/?category=Lan%C3%A7amentos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Lançamento</Link>
-                  <Link to="/?category=Impressão%203D" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Impressão 3D</Link>
-                  <Link to="/?category=Modelos%20Prontos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Modelos prontos</Link>
-                  <Link to="/" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Todos</Link>
-                </nav>
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Buscar produtos..."
+                  value={searchInput}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <nav className="w-full flex justify-center gap-5 mt-4 flex-nowrap">
+                <Link to="/?category=Promo%C3%A7%C3%B5es" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Promoção</Link>
+                <Link to="/?category=Lan%C3%A7amentos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Lançamento</Link>
+                <Link to="/?category=Impressão%203D" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Impressão 3D</Link>
+                <Link to="/?category=Modelos%20Prontos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Modelos prontos</Link>
+                <Link to="/" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Todos</Link>
+              </nav>
             </div>
 
             {/* Direita: ações */}
@@ -94,16 +96,12 @@ export function Header() {
           </div>
         </div>
 
-        {/* ── MOBILE (< md) ───────────────────────────────────────── */}
+        {/* ── MOBILE (< md) ─────────────────────────────────────── */}
         <div className="md:hidden">
           <div className="flex items-center justify-between px-4 py-2">
-
-            {/* Esquerda: hambúrguer */}
             <button className="p-2 text-muted-foreground hover:text-foreground" onClick={() => setDrawerOpen(true)} aria-label="Abrir menu">
               <Menu className="w-6 h-6" />
             </button>
-
-            {/* Centro: logo */}
             <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center">
               <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
                 <img
@@ -114,8 +112,6 @@ export function Header() {
                 />
               </div>
             </Link>
-
-            {/* Direita: tema + carrinho */}
             <div className="flex items-center gap-1">
               <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground" aria-label="Tema">
                 {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
@@ -132,7 +128,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* ── DRAWER MOBILE ───────────────────────────────────────── */}
+        {/* ── DRAWER MOBILE ─────────────────────────────────────── */}
         {drawerOpen && (
           <div className="fixed inset-0 z-[60]">
             <div className="absolute inset-0 bg-black/40" onClick={() => setDrawerOpen(false)} />
@@ -144,7 +140,6 @@ export function Header() {
                 </button>
               </div>
 
-              {/* Conta */}
               <div className="mb-4">
                 <Link
                   to={user ? "/perfil" : "/login"}
@@ -161,7 +156,6 @@ export function Header() {
 
               <hr className="my-2" />
 
-              {/* Atalhos de categoria */}
               <nav className="flex flex-col gap-1 mt-2">
                 <a href="#produtos?category=Promo%C3%A7%C3%B5es" className="py-2 px-3 rounded-md hover:bg-muted text-sm" onClick={() => setDrawerOpen(false)}>Promoção</a>
                 <a href="#produtos?category=Lançamentos" className="py-2 px-3 rounded-md hover:bg-muted text-sm" onClick={() => setDrawerOpen(false)}>Lançamento</a>

@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     hmr: { overlay: false },
     // Proxy apenas para desenvolvimento local.
-    // Em produção no Vercel VITE_API_URL resolve o endereço do backend.
+    // Em produção no Vercel, VITE_API_URL aponta direto para o Render.
     proxy: {
       "/api": {
         target: "http://localhost:8000",

@@ -1,38 +1,65 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { apiMe, apiLogin, apiSignup, apiLogout, ApiUser } from "@/lib/api";
 
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => boolean;
-  signup: (name: string, email: string, password: string) => boolean;
-  logout: () => void;
+  user: ApiUser | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<ApiUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (email: string, _password: string) => {
-    // Mock login
-    setUser({ id: "1", name: email.split("@")[0], email });
-    return true;
+  // Ao montar, verifica se há sessão ativa no backend
+  useEffect(() => {
+    apiMe()
+      .then((u) => setUser(u))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const u = await apiLogin(email, password);
+      setUser(u);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  const signup = (name: string, email: string, _password: string) => {
-    setUser({ id: "1", name, email });
-    return true;
+  const signup = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      const u = await apiSignup(name, email, password);
+      setUser(u);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  const logout = () => setUser(null);
+  const logout = async () => {
+    await apiLogout().catch(() => {});
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
