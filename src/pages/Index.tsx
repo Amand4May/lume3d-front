@@ -69,16 +69,13 @@ const Index = () => {
   // Listen to hash changes so HeroSection can trigger scroll+category via hash
   // Also listen to query params for category navigation from other pages
   useEffect(() => {
-    let isFirstLoad = true;
-
-    const applyFilters = (shouldScroll = false) => {
+    const applyFilters = () => {
       let cat = null;
       
       // First check query params (from navbar navigation)
       const paramCat = searchParams.get("category");
       if (paramCat) {
         cat = decodeURIComponent(paramCat);
-        shouldScroll = true;
       } else {
         // Fall back to hash (from HeroSection)
         const hash = window.location.hash || "";
@@ -89,7 +86,6 @@ const Index = () => {
           const hashCat = params.get("category");
           if (hashCat) {
             cat = decodeURIComponent(hashCat);
-            shouldScroll = true;
           }
         }
       }
@@ -100,25 +96,24 @@ const Index = () => {
       const paramSearch = searchParams.get("search");
       if (paramSearch) {
         setSearchQuery(decodeURIComponent(paramSearch));
-        shouldScroll = true;
       } else {
         setSearchQuery("");
       }
       
-      // Only scroll to produtos if there's a filter/search or explicit request (but NOT on first load)
-      if (shouldScroll && !isFirstLoad) {
-        const el = document.getElementById("produtos");
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+      // Scroll to produtos section only if there are active filters/search
+      const hasFilters = paramCat || paramSearch;
+      if (hasFilters) {
+        setTimeout(() => {
+          const el = document.getElementById("produtos");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       }
-      
-      isFirstLoad = false;
     };
 
     applyFilters();
     
     const handleHashChange = () => {
-      isFirstLoad = false;
-      applyFilters(true);
+      applyFilters();
     };
     
     window.addEventListener("hashchange", handleHashChange);
