@@ -1,12 +1,13 @@
-## Equipe e Desenvolvedores
-* **Amanda Mayumi** ([Amand4May](https://github.com/Amand4May))
-* **Asla** ([Aslalol](https://github.com/Aslalol))
-
 # LUME 3D | Impressão 3D sob Demanda
 
 O LUME 3D é uma plataforma de e-commerce especializada no mercado de impressão 3D. O sistema foi projetado para oferecer uma experiência de compra ágil e intuitiva, fornecendo um ambiente robusto e seguro para as compras no site.
 
 Acesse em: [lume3d-front.vercel.app](https://lume3d-front.vercel.app)
+
+## Equipe e Desenvolvedores
+* **Amanda Mayumi** ([Amand4May](https://github.com/Amand4May))
+* **Asla** ([Aslalol](https://github.com/Aslalol))
+
 
 ## Tecnologias e Arquitetura
 
@@ -39,18 +40,31 @@ O ecossistema do LUME 3D foi construído utilizando tecnologias modernas de dese
 
 ## Estrutura do Projeto
 
+```
 ├── public/
 ├── src/
 │   ├── assets/
 │   ├── components/
 │   ├── pages/
-│   ├── styles/
+│   ├── contexts/
+│   ├── hooks/
+│   ├── lib/
+│   ├── data/
 │   ├── App.tsx
-│   └── main.tsx
+│   ├── main.tsx
+│   ├── index.css
+│   └── vite-env.d.ts
 ├── index.html
 ├── package.json
 ├── tsconfig.json
-└── vite.config.ts
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── vite.config.ts
+├── tailwind.config.ts
+├── postcss.config.js
+├── eslint.config.js
+├── components.json
+└── vitest.config.ts
 ```
 
 ## Pré-requisitos
