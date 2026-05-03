@@ -5,7 +5,6 @@ import { HeroSection } from "@/components/HeroSection";
 import { CategorySidebar } from "@/components/CategorySidebar";
 import { ProductCard } from "@/components/ProductCard";
 import { FeaturesSection } from "@/components/FeaturesSection";
-import { BrandsSection } from "@/components/BrandsSection";
 import { Footer } from "@/components/Footer";
 import { useCatalog } from "@/contexts/CatalogContext";
 import useSEO from "@/hooks/useSEO";
@@ -157,7 +156,6 @@ const Index = () => {
         </div>
       </section>
 
-      <BrandsSection />
       <FeaturesSection />
       <Footer />
     </div>
