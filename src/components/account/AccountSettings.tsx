@@ -23,6 +23,11 @@ const AccountSettings: React.FC = () => {
   ]);
   const [cards, setCards] = useState([{ id: 1, label: "Visa **** 4242" }]);
 
+  // Edit address state
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editValue, setEditValue] = useState("");
+
   const handleSaveDados = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Salvar Dados Cadastrais", { name, cpf, email, phone });
@@ -37,6 +42,40 @@ const AccountSettings: React.FC = () => {
   const handleAddCard = () => {
     const next = { id: Date.now(), label: "Cartão novo" };
     setCards((s) => [...s, next]);
+  };
+
+  const handleRemoveAddress = (id: number) => {
+    setAddresses((s) => s.filter((a) => a.id !== id));
+  };
+
+  const handleRemoveCard = (id: number) => {
+    setCards((s) => s.filter((c) => c.id !== id));
+  };
+
+  const handleEditAddress = (id: number) => {
+    const address = addresses.find((a) => a.id === id);
+    if (address) {
+      setEditingId(id);
+      setEditLabel(address.label);
+      setEditValue(address.value);
+    }
+  };
+
+  const handleSaveAddress = () => {
+    setAddresses((s) =>
+      s.map((a) =>
+        a.id === editingId ? { ...a, label: editLabel, value: editValue } : a
+      )
+    );
+    setEditingId(null);
+    setEditLabel("");
+    setEditValue("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditLabel("");
+    setEditValue("");
   };
 
   const handleChangePassword = (e: React.FormEvent) => {
@@ -102,15 +141,42 @@ const AccountSettings: React.FC = () => {
 
               <div className="space-y-2">
                 {addresses.map((a) => (
-                  <div key={a.id} className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
-                    <div>
-                      <div className="font-medium">{a.label}</div>
-                      <div className="text-sm text-muted-foreground">{a.value || 'Sem endereço'}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">Editar</Button>
-                      <Button variant="ghost" size="sm">Remover</Button>
-                    </div>
+                  <div key={a.id}>
+                    {editingId === a.id ? (
+                      <div className="border rounded-md p-3 space-y-3 bg-muted/30">
+                        <div>
+                          <label className="text-sm block mb-1 text-muted-foreground">Tipo</label>
+                          <Input
+                            value={editLabel}
+                            onChange={(e) => setEditLabel(e.target.value)}
+                            placeholder="Ex: Casa, Trabalho"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm block mb-1 text-muted-foreground">Endereço</label>
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            placeholder="Rua, número, bairro, cidade..."
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 justify-end">
+                          <Button variant="outline" size="sm" onClick={handleCancelEdit}>Cancelar</Button>
+                          <Button size="sm" onClick={handleSaveAddress}>Salvar</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
+                        <div>
+                          <div className="font-medium">{a.label}</div>
+                          <div className="text-sm text-muted-foreground">{a.value || 'Sem endereço'}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleEditAddress(a.id)}>Editar</Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveAddress(a.id)}>Remover</Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -129,7 +195,7 @@ const AccountSettings: React.FC = () => {
                   <div key={c.id} className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
                     <div className="text-sm">{c.label}</div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">Remover</Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleRemoveCard(c.id)}>Remover</Button>
                     </div>
                   </div>
                 ))}

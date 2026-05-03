@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { toast } from "sonner";
+import logo from "@/assets/svgbrancolume.svg";
+import logoLight from "@/assets/svgpretolume.svg";
+import videoBg from "@/assets/video_fundo_site.mp4";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { signup } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,10 +28,45 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <div className="flex-1 flex items-center justify-center py-12">
-        <div className="w-full max-w-md bg-surface border border-border rounded-md p-8">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {/* Vídeo de fundo */}
+      <div className="absolute inset-0 -z-10">
+        <video
+          src={videoBg}
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover opacity-50"
+        />
+        <div className="absolute inset-0 bg-black/35" />
+      </div>
+      {/* Header com botão de voltar */}
+      <header className="sticky top-0 z-50">
+        <div className="flex items-center justify-start py-2 pl-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar para o início</span>
+          </Link>
+        </div>
+      </header>
+
+      {/* Container para conteúdo */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-12">
+        {/* Logo centralizada - aumentada */}
+        <div className="mb-8">
+          <div className="w-24 h-24 lg:w-32 lg:h-32 flex items-center justify-center overflow-hidden">
+            <img
+              src={logo}
+              alt="Lume 3D"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+        {/* Formulário */}
+        <div className="w-full max-w-md bg-surface border border-border rounded-lg p-8">
           <h1 className="text-2xl font-bold text-foreground mb-2 text-center">Criar Conta</h1>
           <p className="text-sm text-muted-foreground text-center mb-6">Junte-se à Lume 3D</p>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -50,8 +89,8 @@ const SignupPage = () => {
             <Link to="/login" className="text-primary hover:underline">Entrar</Link>
           </p>
         </div>
+
       </div>
-      <Footer />
     </div>
   );
 };

@@ -38,8 +38,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       shortcut.rel = "shortcut icon";
       document.head.appendChild(shortcut);
     }
-    const lightHref = "/src/assets/favicon.ico";
-    const darkHref = "/src/assets/faviconwhite.ico";
+    const lightHref = "/favicon.ico";
+    const darkHref = "/faviconwhite.ico";
     const baseHref = theme === "dark" ? darkHref : lightHref;
     // cache-bust so browsers (Chrome) refetch
     const newHref = baseHref + `?v=${Date.now()}`;

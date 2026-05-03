@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Search, User, ShoppingCart, Sun, Moon, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
@@ -8,10 +8,26 @@ import logo from "@/assets/svgbrancolume.svg";
 import logoLight from "@/assets/svgpretolume.svg";
 
 export function Header() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // hide header on specific routes (login, signup)
+  const hideOn = ["/login", "/cadastro"];
+  if (hideOn.includes(location.pathname)) return null;
   const { totalItems } = useCart();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
+
+  const handleSearch = (value: string) => {
+    setSearchInput(value);
+    if (value.trim()) {
+      navigate(`/?search=${encodeURIComponent(value)}&scroll=products`);
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <>
@@ -44,15 +60,17 @@ export function Header() {
                   <input
                     type="text"
                     placeholder="Buscar produtos..."
+                    value={searchInput}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
                 <nav className="w-full flex justify-center gap-5 mt-4 flex-nowrap">
-                  <a href="#produtos?category=Promo%C3%A7%C3%B5es" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Promoção</a>
-                  <a href="#produtos?category=Lançamentos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Lançamento</a>
-                  <a href="#produtos?category=Impressao%203d" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Impressão 3D</a>
-                  <a href="#produtos?category=Modelos%20Prontos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Modelos prontos</a>
-                  <a href="#produtos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Todos</a>
+                  <Link to="/?category=Promo%C3%A7%C3%B5es" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Promoção</Link>
+                  <Link to="/?category=Lan%C3%A7amentos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Lançamento</Link>
+                  <Link to="/?category=Impressão%203D" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Impressão 3D</Link>
+                  <Link to="/?category=Modelos%20Prontos" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Modelos prontos</Link>
+                  <Link to="/" className="text-sm font-medium text-foreground hover:text-primary whitespace-nowrap transition-colors">Todos</Link>
                 </nav>
             </div>
 

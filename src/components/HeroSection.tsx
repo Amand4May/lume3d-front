@@ -1,5 +1,6 @@
-import heroImage from "@/assets/hero-3dprint.jpg";
+import videoBg from "@/assets/video_fundo_site.mp4";
 import { Button } from "@/components/ui/button";
+import { Zap } from "lucide-react";
 import { useCallback } from "react";
 
 export function HeroSection() {
@@ -24,12 +25,19 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-navy">
       <div className="absolute inset-0">
-        <img src={heroImage} alt="Impressora 3D em ação" className="w-full h-full object-cover opacity-50" />
+        <video
+          src={videoBg}
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover opacity-50"
+        />
       </div>
       <div className="relative container py-20 md:py-32">
         <div className="max-w-xl">
           <div className="mb-4">
-              <span className="inline-block bg-primary/30 px-3 py-1 rounded-full text-xs font-semibold uppercase text-white shadow-sm backdrop-blur-sm border border-white/10">
+              <span className="w-fit inline-block bg-primary/30 px-3 py-1 rounded-full text-xs font-semibold uppercase text-white shadow-sm backdrop-blur-sm border border-white/10 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-white flex-shrink-0" />
               Inovação em cada camada
             </span>
           </div>

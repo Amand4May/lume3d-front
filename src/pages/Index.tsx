@@ -4,13 +4,14 @@ import { HeroSection } from "@/components/HeroSection";
 import { CategorySidebar } from "@/components/CategorySidebar";
 import { ProductCard } from "@/components/ProductCard";
 import { FeaturesSection } from "@/components/FeaturesSection";
-import { BrandsSection } from "@/components/BrandsSection";
 import { Footer } from "@/components/Footer";
 import { products } from "@/data/products";
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import useSEO from "@/hooks/useSEO";
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
   const [category, setCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
@@ -66,26 +67,46 @@ const Index = () => {
   }, [category, searchQuery, priceRange, sortBy]);
 
   // Listen to hash changes so HeroSection can trigger scroll+category via hash
+  // Also listen to query params for category navigation from other pages
   useEffect(() => {
-    const applyHash = () => {
-      const hash = window.location.hash || ""; // e.g. #produtos?category=Lançamentos
-      if (!hash.startsWith("#produtos")) return;
-      const parts = hash.split("?");
-      const query = parts[1] ?? "";
-      const params = new URLSearchParams(query);
-      const cat = params.get("category");
-      if (cat) {
-        setCategory(decodeURIComponent(cat));
+    const applyFilters = () => {
+      let cat = null;
+      
+      // First check query params (from navbar navigation)
+      const paramCat = searchParams.get("category");
+      if (paramCat) {
+        cat = decodeURIComponent(paramCat);
       } else {
-        // no category in hash -> select 'Todos'
-        setCategory(null);
+        // Fall back to hash (from HeroSection)
+        const hash = window.location.hash || "";
+        if (hash.startsWith("#produtos")) {
+          const parts = hash.split("?");
+          const query = parts[1] ?? "";
+          const params = new URLSearchParams(query);
+          const hashCat = params.get("category");
+          if (hashCat) {
+            cat = decodeURIComponent(hashCat);
+          }
+        }
       }
+      
+      setCategory(cat);
+      
+      // Check for search query param
+      const paramSearch = searchParams.get("search");
+      if (paramSearch) {
+        setSearchQuery(decodeURIComponent(paramSearch));
+      } else {
+        setSearchQuery("");
+      }
+      
+      // Scroll to produtos section
       const el = document.getElementById("produtos");
       if (el) el.scrollIntoView({ behavior: "smooth" });
     };
 
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
+    applyFilters();
+    window.addEventListener("hashchange", applyFilters);
     const handleCustom = (e: Event) => {
       // handle custom event from HeroSection
       try {
@@ -100,10 +121,10 @@ const Index = () => {
     };
     window.addEventListener("scrollToProducts", handleCustom as EventListener);
     return () => {
-      window.removeEventListener("hashchange", applyHash);
+      window.removeEventListener("hashchange", applyFilters);
       window.removeEventListener("scrollToProducts", handleCustom as EventListener);
     };
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,7 +161,6 @@ const Index = () => {
         </div>
       </section>
 
-      <BrandsSection />
       <FeaturesSection />
       <Footer />
     </div>

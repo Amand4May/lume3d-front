@@ -41,10 +41,10 @@ const ProfilePage = () => {
               <div className="w-28 h-28 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
                 <User className="w-12 h-12 text-primary" />
               </div>
-              <div>
-                <h2 className="font-bold text-foreground text-lg">{user.name}</h2>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5" /> {user.email}
+              <div className="min-w-0">
+                <h2 className="font-bold text-foreground text-lg truncate">{user.name}</h2>
+                <p className="text-sm text-muted-foreground flex items-center gap-1 truncate">
+                  <Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{user.email}</span>
                 </p>
               </div>
             </div>
