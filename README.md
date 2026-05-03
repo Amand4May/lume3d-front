@@ -1,155 +1,140 @@
-# 🛒 Lume 3D
+## Equipe e Desenvolvedores
+* **Amanda Mayumi** ([Amand4May](https://github.com/Amand4May))
+* **Asla** ([Aslalol](https://github.com/Aslalol))
 
-Projeto acadêmico (e-commerce focado em impressão 3D) criado para a disciplina de Desenvolvimento Web. Contém catálogo de produtos, filtros, carrinho, cálculo de frete (simulado) e área de pedidos/serviços.
+# LUME 3D | Impressão 3D sob Demanda
 
----
+O LUME 3D é uma plataforma de e-commerce especializada no mercado de impressão 3D. O sistema foi projetado para oferecer uma experiência de compra ágil e intuitiva, fornecendo um ambiente robusto e seguro para as compras no site.
 
-## Índice
+Acesse em: [lume3d-front.vercel.app](https://lume3d-front.vercel.app)
 
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação rápida](#instalação-rápida)
-- [Scripts disponíveis](#scripts-disponíveis)
-- [Dependências importantes](#dependências-importantes)
-- [Testes](#testes)
-- [Config / Variáveis de ambiente](#config--variáveis-de-ambiente)
-- [Notas de desenvolvimento](#notas-de-desenvolvimento)
-- [Contribuição](#contribuição)
+## Tecnologias e Arquitetura
 
----
+O ecossistema do LUME 3D foi construído utilizando tecnologias modernas de desenvolvimento web, garantindo alta performance, escalabilidade e manutenibilidade:
+
+* **React 18.3.1:** Biblioteca principal para a construção de interfaces.
+* **React Router DOM 6.30.1:** Roteamento SPA com suporte a query parameters e navegação programática.
+* **TypeScript 5.8.3:** Base de código tipada, assegurando maior previsibilidade e redução de bugs.
+* **Vite 5.4.19:** Ferramenta de build para um desenvolvimento rápido com HMR.
+* **Tailwind CSS 3.4.17:** Framework CSS utility-first com suporte a dark mode.
+* **JavaScript (ES6+):** Utilizado para lógica de programação e manipulação de estado.
+
+### Dependências Principais
+
+* **cep-promise 4.4.1:** Busca de endereços por CEP com suporte a vários provedores. Retorna `{ cep, state, city, neighborhood, street }`.
+* **@tanstack/react-query 5.83.0:** Gerenciamento de dados remotos com cache e sincronização.
+* **Shadcn/ui:** Componentes UI acessíveis e customizáveis (Button, Input, Card, Tabs, Dialog, etc).
+* **Lucide React 0.462.0:** Biblioteca de ícones modernos e customizáveis.
+* **Sonner 1.7.4:** Sistema de notificações toast para feedback do usuário.
+* **Zod 3.25.76:** Validação de schemas TypeScript.
+
+* **Git & GitHub:** Gestão de controle de versão, CI/CD.
+
+## Funcionalidades
+
+* Catálogo de produtos com impressão 3D sob demanda
+* Ambiente seguro para realização de compras
+* Interface responsiva para todos os dispositivos
+* Navegação rápida e intuitiva
+
+## Estrutura do Projeto
+
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── styles/
+│   ├── App.tsx
+│   └── main.tsx
+├── index.html
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
 
 ## Pré-requisitos
 
-- Node.js 18+ (recomendo a versão LTS mais recente)
-- npm, yarn ou pnpm (qualquer gerenciador que prefira)
+Antes de começar, certifique-se de ter instalado em sua máquina:
 
-> Observação: há um `bun.lockb` no repositório — se você usar Bun, pode executar `bun install` em vez de `npm install`.
+* Node.js (versão 18 ou superior)
+* Git
 
----
+## Instalação e Execução (Ambiente de Desenvolvimento)
 
-## Instalação rápida
+Para rodar a plataforma localmente, certifique-se de ter o [Node.js](https://nodejs.org/) instalado em sua máquina.
 
 1. Clone o repositório:
-
 ```bash
 git clone https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git
+```
+
+2. Entre na pasta do projeto:
+```bash
 cd NOME_DO_REPOSITORIO
 ```
 
-2. Instale dependências (escolha um):
-
+3. Instale as dependências:
 ```bash
 npm install
-# ou
-pnpm install
-# ou
-yarn install
-# ou (opcional)
-bun install
 ```
 
-3. Iniciar servidor de desenvolvimento:
-
+4. Execute o projeto em ambiente de desenvolvimento:
 ```bash
 npm run dev
-# ou pnpm/yarn equivalente
 ```
 
-4. Build para produção:
+## Scripts Disponíveis
 
 ```bash
-npm run build
-npm run preview   # pré-visualizar build localmente
+# Desenvolvimento
+npm run dev         # Inicia servidor de desenvolvimento com Vite
+
+# Build
+npm run build       # Compila o projeto para produção
+
+# Preview
+npm run preview     # Visualiza build de produção localmente
+
+# Linting
+npm run lint        # Executa ESLint para verificar estilo do código
+
+# Testes
+npm run test        # Executa testes unitários com Vitest
+npm run test:ui     # Interface de testes interativa
 ```
 
----
+## Dependência Importante: cep-promise
 
-## Scripts disponíveis
+O `cep-promise` é uma biblioteca crucial para integração com o ShippingCalculator e qualquer funcionalidade que envolva cálculo de fretes baseado em CEP.
 
-Extraídos do `package.json`:
+### Como usar:
 
-- `dev` — inicia o servidor de desenvolvimento (Vite)
-- `build` — cria build de produção
-- `build:dev` — build em modo `development`
-- `preview` — serve o build localmente
-- `lint` — roda ESLint
-- `test` — executa os testes com Vitest
-- `test:watch` — executa Vitest em modo watch
+```typescript
+import cep from 'cep-promise';
 
-Use por exemplo `npm run dev` ou `pnpm dev`.
+// Buscar dados do CEP
+const endereco = await cep('01234567');
+// Retorna: { cep: '01234-567', state: 'SP', city: 'São Paulo', neighborhood: 'Bom Retiro', street: 'Rua Augusta' }
+```
 
----
+### Contexto de Uso:
+- **ShippingContext:** Calcula fretes baseado no CEP fornecido
+- **CheckoutPage:** Integração com busca de endereço durante checkout
+- **ShippingCalculator:** Componente que exibe opções de frete
 
-## Dependências importantes
-
-Algumas bibliotecas relevantes usadas no projeto e por que elas estão aqui:
-
-- `cep-promise` — Biblioteca para consulta de CEP (ViaCEP / Correios / etc.). Usada em `src/contexts/ShippingContext.tsx` para obter cidade/estado a partir do CEP. Não requer chave de API para os provedores públicos padrão.
-
-  Exemplo de uso:
-
-  ```ts
-  import cep from 'cep-promise'
-
-  const info = await cep('01001000')
-  // info => { cep: '01001000', state: 'SP', city: 'São Paulo', neighborhood: '...', street: '...' }
-  ```
-
-  Nos testes o `cep-promise` é mockado com Vitest (`vi.mock('cep-promise', () => ({ default: vi.fn() }))`). Veja `src/test/ShippingContext.test.tsx`.
-
-- `react-router-dom` — routing das páginas
-- `@tanstack/react-query` — cache/requests e gerenciamento de estado para dados remotos
-- `tailwindcss` + `tailwindcss-animate` — framework CSS utilitário e animações
-- `sonner` — notificações/toasts usados no app
-- `lucide-react` — ícones
-
-Veja o `package.json` para a lista completa de dependências.
-
----
-
-## Testes
-
-Rodar testes:
-
+**Importante:** Certifique-se que o cep-promise está instalado ao clonar o repositório:
 ```bash
-npm test
+npm install
 ```
 
-Dica: para testes que usam `cep-promise`, há mocks no diretório `src/test`. Se precisar simular respostas, use `vi.mock('cep-promise', ...)`.
+## Environment Variables
+
+O projeto pode utilizar variáveis de ambiente para configurações sensíveis. Crie um arquivo `.env.local` na raiz do projeto com as variáveis necessárias (confira `.env.example` se existir).
+
+## Equipe e Desenvolvedores
+
+O sucesso do LUME 3D é resultado do trabalho de desenvolvedores focados na entrega de valor e qualidade técnica.
 
 ---
-
-## Config / Variáveis de ambiente
-
-Este projeto não exige variáveis de ambiente obrigatórias por padrão (nenhuma referência `process.env` encontrada). Algumas integrações externas poderiam ser adicionadas no futuro — caso precise, documente aqui.
-
-Tema: o estado do tema (claro / escuro) é armazenado em `localStorage` pela `ThemeContext` (`localStorage.theme`).
-
----
-
-## Notas de desenvolvimento
-
-- O cálculo de frete é simulado em `src/contexts/ShippingContext.tsx` e usa `cep-promise` apenas para obter cidade/estado a partir do CEP.
-- Componentes principais estão em `src/components` e páginas em `src/pages`.
-- Configurações do Tailwind em `tailwind.config.ts` e tokens em `src/index.css`.
-
----
-
-## Contribuição
-
-1. Crie uma branch com a sua feature/bugfix: `git checkout -b feat/minha-coisa`
-2. Faça commits pequenos e claros.
-3. Abra um pull request.
-
-Por favor rode `npm run lint` e `npm test` antes de abrir PR.
-
----
-
-## Problemas comuns / Troubleshooting
-
-- Se a consulta de CEP falhar, verifique conexão com a internet e tente novamente (provedores externos podem ocasionalmente retornar erro).
-- Caso algum pacote não instale corretamente, remova `node_modules` e execute `npm install` novamente. Se estiver usando `pnpm`, rode `pnpm install`.
-
----
-
-Se quiser, posso ajustar este README com instruções específicas de deploy (Netlify / Vercel / Docker) ou incluir passos para CI/CD.
-
+© 2026 LUME 3D. Todos os direitos reservados.
