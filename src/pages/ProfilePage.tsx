@@ -10,8 +10,20 @@ import Orders from "@/components/account/Orders";
 import AccountSettings from "@/components/account/AccountSettings";
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -52,7 +64,10 @@ const ProfilePage = () => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => { logout(); navigate("/"); }}
+              onClick={async () => {
+                await logout();
+                navigate("/");
+              }}
             >
               <LogOut className="w-4 h-4 mr-2" /> Sair da Conta
             </Button>
@@ -65,15 +80,12 @@ const ProfilePage = () => {
                 <TabsTrigger value="compras">Compras</TabsTrigger>
                 <TabsTrigger value="dadosseg">Dados & Segurança</TabsTrigger>
               </TabsList>
-
               <TabsContent value="favoritos">
                 <Favorites />
               </TabsContent>
-
               <TabsContent value="compras">
                 <Orders />
               </TabsContent>
-
               <TabsContent value="dadosseg">
                 <AccountSettings />
               </TabsContent>

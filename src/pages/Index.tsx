@@ -1,16 +1,17 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { CategorySidebar } from "@/components/CategorySidebar";
 import { ProductCard } from "@/components/ProductCard";
 import { FeaturesSection } from "@/components/FeaturesSection";
+import { BrandsSection } from "@/components/BrandsSection";
 import { Footer } from "@/components/Footer";
-import { products } from "@/data/products";
-import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCatalog } from "@/contexts/CatalogContext";
 import useSEO from "@/hooks/useSEO";
 
 const Index = () => {
+  const { products } = useCatalog();
   const [searchParams] = useSearchParams();
   const [category, setCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,11 +37,9 @@ const Index = () => {
       if (category) {
         const normCat = normalize(category);
         if (normCat === normalize("Promoções")) {
-          if (!p.tag) return false;
-          if (normalize(p.tag) !== normalize("Promoção")) return false;
+          if (!p.tag || normalize(p.tag) !== normalize("Promoção")) return false;
         } else if (normCat === normalize("Lançamentos")) {
-          if (!p.tag) return false;
-          if (normalize(p.tag) !== normalize("Lançamento")) return false;
+          if (!p.tag || normalize(p.tag) !== normalize("Lançamento")) return false;
         } else {
           if (normalize(p.category) !== normCat) return false;
         }
@@ -53,86 +52,71 @@ const Index = () => {
     if (sortBy === "price-asc") result.sort((a, b) => a.price - b.price);
     if (sortBy === "price-desc") result.sort((a, b) => b.price - a.price);
 
-    // Relevância: quando em 'Todos' (categoria null) e ordenação padrão,
-    // colocar produtos de 'Impressao 3d' no topo
     if (sortBy === "default" && category === null) {
       result.sort((a, b) => {
         const aIsPrint = normalize(a.category) === normalize("impressao 3d") ? 1 : 0;
         const bIsPrint = normalize(b.category) === normalize("impressao 3d") ? 1 : 0;
-        return bIsPrint - aIsPrint; // print items first
+        return bIsPrint - aIsPrint;
       });
     }
 
     return result;
-  }, [category, searchQuery, priceRange, sortBy]);
+  }, [category, searchQuery, priceRange, sortBy, products]);
 
-  // Listen to hash changes so HeroSection can trigger scroll+category via hash
-  // Also listen to query params for category navigation from other pages
+  // Lida com filtros via query params (navbar) e hash (HeroSection)
   useEffect(() => {
     const applyFilters = () => {
-      let cat = null;
-      
-      // First check query params (from navbar navigation)
+      let cat: string | null = null;
+
+      // Prioridade: query params (navegação pelo navbar)
       const paramCat = searchParams.get("category");
       if (paramCat) {
         cat = decodeURIComponent(paramCat);
       } else {
-        // Fall back to hash (from HeroSection)
+        // Fallback: hash (HeroSection)
         const hash = window.location.hash || "";
         if (hash.startsWith("#produtos")) {
           const parts = hash.split("?");
           const query = parts[1] ?? "";
           const params = new URLSearchParams(query);
           const hashCat = params.get("category");
-          if (hashCat) {
-            cat = decodeURIComponent(hashCat);
-          }
+          if (hashCat) cat = decodeURIComponent(hashCat);
         }
       }
-      
+
       setCategory(cat);
-      
-      // Check for search query param
+
       const paramSearch = searchParams.get("search");
       if (paramSearch) {
         setSearchQuery(decodeURIComponent(paramSearch));
       } else {
         setSearchQuery("");
       }
-      
-      // Scroll to produtos section only if there are active filters/search
+
       const hasFilters = paramCat || paramSearch;
       if (hasFilters) {
         setTimeout(() => {
-          const el = document.getElementById("produtos");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
+          document.getElementById("produtos")?.scrollIntoView({ behavior: "smooth" });
         }, 100);
       }
     };
 
     applyFilters();
-    
-    const handleHashChange = () => {
-      applyFilters();
-    };
-    
-    window.addEventListener("hashchange", handleHashChange);
-    
+
+    const handleHashChange = () => applyFilters();
+
     const handleCustom = (e: Event) => {
-      // handle custom event from HeroSection
       try {
-        // @ts-ignore
-        const cat = e?.detail?.category ?? null;
+        const cat = (e as CustomEvent)?.detail?.category ?? null;
         setCategory(cat);
       } catch {
         setCategory(null);
       }
-      const el = document.getElementById("produtos");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("produtos")?.scrollIntoView({ behavior: "smooth" });
     };
-    
+
+    window.addEventListener("hashchange", handleHashChange);
     window.addEventListener("scrollToProducts", handleCustom as EventListener);
-    
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
       window.removeEventListener("scrollToProducts", handleCustom as EventListener);
@@ -144,7 +128,6 @@ const Index = () => {
       <Header />
       <HeroSection />
 
-      {/* Products section */}
       <section id="produtos" className="py-12">
         <div className="container">
           <h2 className="text-2xl font-bold text-foreground mb-8">Nossos Produtos</h2>
@@ -174,6 +157,7 @@ const Index = () => {
         </div>
       </section>
 
+      <BrandsSection />
       <FeaturesSection />
       <Footer />
     </div>
