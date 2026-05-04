@@ -191,8 +191,15 @@ export interface ApiCheckoutResponse {
   pagamento_id: number;
 }
 
-export async function apiCheckout(): Promise<ApiCheckoutResponse> {
-  return apiFetch<ApiCheckoutResponse>("/api/checkout/", { method: "POST" });
+export async function apiCheckout(frete?: { nome: string; valor: number }, desconto?: number): Promise<ApiCheckoutResponse> {
+  return apiFetch<ApiCheckoutResponse>("/api/checkout/", {
+    method: "POST",
+    body: JSON.stringify({
+      frete_nome: frete?.nome ?? null,
+      frete_valor: frete?.valor ?? 0,
+      desconto: desconto ?? 0,
+    }),
+  });
 }
 
 export interface ApiCheckoutStatus {

@@ -54,7 +54,10 @@ const CheckoutPage = () => {
     setLoading(true);
 
     try {
-      const resultado = await apiCheckout();
+      const resultado = await apiCheckout(
+        selectedOption ? { nome: selectedOption.name, valor: selectedOption.price } : undefined,
+        discountAmount ?? 0
+      );
 
       if (resultado.checkout_url) {
         // Redireciona para o Stripe Hosted Checkout
