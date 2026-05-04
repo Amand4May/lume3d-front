@@ -94,6 +94,16 @@ export async function apiLogout(): Promise<void> {
   await apiFetch("/api/logout/", { method: "POST" });
 }
 
+export async function apiChangePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiFetch("/api/change-password/", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+}
+
 export interface ApiProduct {
   id: string;
   db_id: number;
@@ -181,8 +191,15 @@ export interface ApiCheckoutResponse {
   pagamento_id: number;
 }
 
-export async function apiCheckout(): Promise<ApiCheckoutResponse> {
-  return apiFetch<ApiCheckoutResponse>("/api/checkout/", { method: "POST" });
+export async function apiCheckout(frete?: { nome: string; valor: number }, desconto?: number): Promise<ApiCheckoutResponse> {
+  return apiFetch<ApiCheckoutResponse>("/api/checkout/", {
+    method: "POST",
+    body: JSON.stringify({
+      frete_nome: frete?.nome ?? null,
+      frete_valor: frete?.valor ?? 0,
+      desconto: desconto ?? 0,
+    }),
+  });
 }
 
 export interface ApiCheckoutStatus {
