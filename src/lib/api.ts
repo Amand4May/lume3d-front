@@ -94,6 +94,16 @@ export async function apiLogout(): Promise<void> {
   await apiFetch("/api/logout/", { method: "POST" });
 }
 
+export async function apiChangePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiFetch("/api/change-password/", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+}
+
 export interface ApiProduct {
   id: string;
   db_id: number;
