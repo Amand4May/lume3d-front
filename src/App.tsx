@@ -8,6 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { ShippingProvider } from "@/contexts/ShippingContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { CatalogProvider } from "@/contexts/CatalogContext";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import BlogIndex from "./pages/BlogIndex";
@@ -27,32 +28,34 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <CartProvider>
-          <ShippingProvider>
-            <FavoritesProvider>
-              <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <Routes>
-                <Route path="/blog" element={<BlogIndex />} />
-                <Route path="/blog/:slug" element={<Article />} />
-                <Route path="/" element={<Index />} />
-                <Route path="/produto/:id" element={<ProductDetail />} />
-                <Route path="/carrinho" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/pedido-concluido" element={<PedidoConcluido />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/cadastro" element={<SignupPage />} />
-                <Route path="/perfil" element={<ProfilePage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-              </TooltipProvider>
-            </FavoritesProvider>
-          </ShippingProvider>
-        </CartProvider>
+        <CatalogProvider>
+          <CartProvider>
+            <ShippingProvider>
+              <FavoritesProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <ScrollToTop />
+                    <Routes>
+                      <Route path="/blog" element={<BlogIndex />} />
+                      <Route path="/blog/:slug" element={<Article />} />
+                      <Route path="/" element={<Index />} />
+                      <Route path="/produto/:id" element={<ProductDetail />} />
+                      <Route path="/carrinho" element={<CartPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/pedido-concluido" element={<PedidoConcluido />} />
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/cadastro" element={<SignupPage />} />
+                      <Route path="/perfil" element={<ProfilePage />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </BrowserRouter>
+                </TooltipProvider>
+              </FavoritesProvider>
+            </ShippingProvider>
+          </CartProvider>
+        </CatalogProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

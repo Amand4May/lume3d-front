@@ -10,8 +10,20 @@ import Orders from "@/components/account/Orders";
 import AccountSettings from "@/components/account/AccountSettings";
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -41,10 +53,10 @@ const ProfilePage = () => {
               <div className="w-28 h-28 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
                 <User className="w-12 h-12 text-primary" />
               </div>
-              <div>
-                <h2 className="font-bold text-foreground text-lg">{user.name}</h2>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5" /> {user.email}
+              <div className="min-w-0">
+                <h2 className="font-bold text-foreground text-lg truncate">{user.name}</h2>
+                <p className="text-sm text-muted-foreground flex items-center gap-1 truncate">
+                  <Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{user.email}</span>
                 </p>
               </div>
             </div>
@@ -52,7 +64,10 @@ const ProfilePage = () => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => { logout(); navigate("/"); }}
+              onClick={async () => {
+                await logout();
+                navigate("/");
+              }}
             >
               <LogOut className="w-4 h-4 mr-2" /> Sair da Conta
             </Button>
@@ -65,15 +80,12 @@ const ProfilePage = () => {
                 <TabsTrigger value="compras">Compras</TabsTrigger>
                 <TabsTrigger value="dadosseg">Dados & Segurança</TabsTrigger>
               </TabsList>
-
               <TabsContent value="favoritos">
                 <Favorites />
               </TabsContent>
-
               <TabsContent value="compras">
                 <Orders />
               </TabsContent>
-
               <TabsContent value="dadosseg">
                 <AccountSettings />
               </TabsContent>

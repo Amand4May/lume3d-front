@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useRef } from "react";
-import { products, type Product } from "@/data/products";
+import { type Product } from "@/data/products";
+import { useCatalog } from "@/contexts/CatalogContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Star, ArrowLeft, Heart, UploadCloud } from "lucide-react";
@@ -16,12 +17,14 @@ import {
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import useSEO from "@/hooks/useSEO";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { products } = useCatalog();
   const product = products.find((p) => p.id === id);
   useSEO({
     title: product ? `${product.name} — Lume 3D` : undefined,
@@ -34,8 +37,9 @@ const ProductDetail = () => {
   const [filament, setFilament] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
   const pricePerCm3 = product?.specs && product.specs["Preço por cm³"] ? parseFloat(product.specs["Preço por cm³"].replace(",", ".")) : 0;
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
   const { addItem } = useCart();
+  const { user } = useAuth();
   const { toggleFavorite, isFavorited } = useFavorites();
 
   const handleToggleFavorite = () => {
@@ -61,7 +65,6 @@ const ProductDetail = () => {
       toast("Por favor selecione o tipo de filamento e envie o arquivo antes de enviar via WhatsApp.");
       return;
     }
-    // Brazil country code +55, area code 15
     const phone = "5515996289226";
     const fileName = file ? file.name : "(sem arquivo)";
     const obs = observations.trim() || "(sem observações)";
@@ -82,11 +85,16 @@ const ProductDetail = () => {
       toast("Serviço sob consulta — envie o arquivo e solicite orçamento nesta página.");
       return;
     }
+    if (!user) {
+      toast("Faça login para adicionar produtos ao carrinho.", {
+        action: { label: "Entrar", onClick: () => window.location.href = "/login" },
+      });
+      return;
+    }
     addItem(product);
     toast.success(`${product.name} adicionado ao carrinho!`);
   };
 
-  // Small inline component to toggle between two images (cycles back on second click)
   const ImageToggle = ({ product }: { product: Product }) => {
     const imgs = product.images && product.images.length > 0 ? product.images : [product.image];
     const limit = product.id.startsWith("impressao-3d") ? imgs.length : Math.min(2, imgs.length);
@@ -132,13 +140,10 @@ const ProductDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Image gallery */}
           <div className="bg-surface border border-border rounded-md overflow-hidden relative">
-            {/* image toggle */}
             <ImageToggle product={product} />
           </div>
 
-          {/* Info */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{product.category}</span>
@@ -176,7 +181,6 @@ const ProductDetail = () => {
                           if (f) {
                             if (f.size > MAX_FILE_SIZE) {
                               toast.error("Arquivo muito grande. Máximo 50MB.");
-                              // reset input
                               if (fileInputRef.current) fileInputRef.current.value = "";
                               setFile(null);
                               return;
@@ -289,7 +293,7 @@ const ProductDetail = () => {
                   })()
                 ) : (
                   <>
-                          <p className="text-3xl font-bold text-foreground">Valor sob consulta</p>
+                    <p className="text-3xl font-bold text-foreground">Valor sob consulta</p>
                     {pricePerCm3 > 0 ? (
                       <p className="text-lg text-success font-semibold mt-1">Preço por cm³: R$ {pricePerCm3.toFixed(2).replace(".", ",")}</p>
                     ) : (
@@ -337,7 +341,6 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="mt-12">
           <Tabs defaultValue="specs">
             <TabsList className="bg-surface border border-border">

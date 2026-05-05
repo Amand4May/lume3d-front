@@ -5,6 +5,8 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { apiChangePassword } from "@/lib/api";
+import { toast } from "sonner";
 
 const AccountSettings: React.FC = () => {
   // Dados Cadastrais
@@ -12,6 +14,11 @@ const AccountSettings: React.FC = () => {
   const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Dados pra alterar senha
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Privacy / access
   const [isPrivate, setIsPrivate] = useState(false);
@@ -22,6 +29,11 @@ const AccountSettings: React.FC = () => {
     { id: 1, label: "Casa", value: "Rua A, 123" },
   ]);
   const [cards, setCards] = useState([{ id: 1, label: "Visa **** 4242" }]);
+
+  // Edit address state
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editValue, setEditValue] = useState("");
 
   const handleSaveDados = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +51,60 @@ const AccountSettings: React.FC = () => {
     setCards((s) => [...s, next]);
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Senha alterada (mock)");
+  const handleRemoveAddress = (id: number) => {
+    setAddresses((s) => s.filter((a) => a.id !== id));
   };
+
+  const handleRemoveCard = (id: number) => {
+    setCards((s) => s.filter((c) => c.id !== id));
+  };
+
+  const handleEditAddress = (id: number) => {
+    const address = addresses.find((a) => a.id === id);
+    if (address) {
+      setEditingId(id);
+      setEditLabel(address.label);
+      setEditValue(address.value);
+    }
+  };
+
+  const handleSaveAddress = () => {
+    setAddresses((s) =>
+      s.map((a) =>
+        a.id === editingId ? { ...a, label: editLabel, value: editValue } : a
+      )
+    );
+    setEditingId(null);
+    setEditLabel("");
+    setEditValue("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditLabel("");
+    setEditValue("");
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (newPassword !== confirmPassword) {
+    toast.error("As senhas não coincidem.");
+    return;
+  }
+  if (newPassword.length < 6) {
+    toast.error("A nova senha deve ter pelo menos 6 caracteres.");
+    return;
+  }
+  try {
+    await apiChangePassword(currentPassword, newPassword);
+    toast.success("Senha alterada com sucesso!");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  } catch (err: any) {
+    toast.error(err.message || "Erro ao alterar senha.");
+  }
+};
 
   return (
     <div className="w-full max-w-3xl">
@@ -102,15 +164,42 @@ const AccountSettings: React.FC = () => {
 
               <div className="space-y-2">
                 {addresses.map((a) => (
-                  <div key={a.id} className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
-                    <div>
-                      <div className="font-medium">{a.label}</div>
-                      <div className="text-sm text-muted-foreground">{a.value || 'Sem endereço'}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">Editar</Button>
-                      <Button variant="ghost" size="sm">Remover</Button>
-                    </div>
+                  <div key={a.id}>
+                    {editingId === a.id ? (
+                      <div className="border rounded-md p-3 space-y-3 bg-muted/30">
+                        <div>
+                          <label className="text-sm block mb-1 text-muted-foreground">Tipo</label>
+                          <Input
+                            value={editLabel}
+                            onChange={(e) => setEditLabel(e.target.value)}
+                            placeholder="Ex: Casa, Trabalho"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm block mb-1 text-muted-foreground">Endereço</label>
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            placeholder="Rua, número, bairro, cidade..."
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 justify-end">
+                          <Button variant="outline" size="sm" onClick={handleCancelEdit}>Cancelar</Button>
+                          <Button size="sm" onClick={handleSaveAddress}>Salvar</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
+                        <div>
+                          <div className="font-medium">{a.label}</div>
+                          <div className="text-sm text-muted-foreground">{a.value || 'Sem endereço'}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleEditAddress(a.id)}>Editar</Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveAddress(a.id)}>Remover</Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -129,7 +218,7 @@ const AccountSettings: React.FC = () => {
                   <div key={c.id} className="flex flex-col lg:flex-row items-start lg:items-center justify-between border rounded-md p-3 gap-2">
                     <div className="text-sm">{c.label}</div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">Remover</Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleRemoveCard(c.id)}>Remover</Button>
                     </div>
                   </div>
                 ))}
@@ -142,17 +231,17 @@ const AccountSettings: React.FC = () => {
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div>
                   <label className="text-sm block mb-1 text-muted-foreground">Senha atual</label>
-                  <PasswordInput placeholder="Senha atual" />
+                  <PasswordInput placeholder="Senha atual" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
                 </div>
 
                 <div>
                   <label className="text-sm block mb-1 text-muted-foreground">Nova senha</label>
-                  <PasswordInput placeholder="Nova senha" />
+                  <PasswordInput placeholder="Nova senha" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 </div>
 
                 <div>
                   <label className="text-sm block mb-1 text-muted-foreground">Confirmar senha</label>
-                  <PasswordInput placeholder="Confirmar senha" />
+                  <PasswordInput placeholder="Confirmar senha" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
 
                 <div className="flex justify-end">
